@@ -16,6 +16,7 @@ export const ElevenLabsChat = () => {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const conversationIdRef = useRef<string | null>(null);
   const [savedToDatabase, setSavedToDatabase] = useState(false);
+  const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
 
   const conversation = useConversation({
     onConnect: () => {
@@ -49,6 +50,16 @@ export const ElevenLabsChat = () => {
       });
       setIsStarted(false);
     },
+    onMessage: (message) => {
+      console.log("Received message:", message);
+      if (message.type === "llm_response") {
+        // Store AI messages
+        setMessages(prev => [...prev, { role: "assistant", content: message.text || "" }]);
+      } else if (message.type === "user_response") {
+        // Store user messages
+        setMessages(prev => [...prev, { role: "user", content: message.text || "" }]);
+      }
+    }
   });
 
   const { status, isSpeaking } = conversation;
@@ -118,6 +129,64 @@ export const ElevenLabsChat = () => {
     }
   };
 
+  const extractDataFromMessages = (messages: Array<{ role: string; content: string }>): DataCollection => {
+    // Initialize empty data collection
+    const extractedData: DataCollection = {};
+    
+    // Convert all messages to a single string to search for patterns
+    const fullText = messages.map(m => m.content).join(" ");
+    
+    // Attempt to extract project information
+    const projectMatch = fullText.match(/project:?\s*([^.,\n]+)/i);
+    if (projectMatch && projectMatch[1]) {
+      extractedData.project = projectMatch[1].trim();
+    }
+    
+    // Attempt to extract hours information
+    const hoursMatch = fullText.match(/hours:?\s*([^.,\n]+)/i) || 
+                      fullText.match(/worked for:?\s*([^.,\n]+)/i) ||
+                      fullText.match(/time spent:?\s*([^.,\n]+)/i);
+    if (hoursMatch && hoursMatch[1]) {
+      extractedData.hours = hoursMatch[1].trim();
+    }
+    
+    // Attempt to extract summary
+    const summaryMatch = fullText.match(/summary:?\s*([^.]+\.)/i) ||
+                         fullText.match(/description:?\s*([^.]+\.)/i);
+    if (summaryMatch && summaryMatch[1]) {
+      extractedData.summary = summaryMatch[1].trim();
+    }
+    
+    // Set a status based on the conversation
+    if (fullText.toLowerCase().includes("complete") || 
+        fullText.toLowerCase().includes("finished") ||
+        fullText.toLowerCase().includes("done")) {
+      extractedData.closed = "completed";
+    } else if (fullText.toLowerCase().includes("in progress") ||
+               fullText.toLowerCase().includes("ongoing")) {
+      extractedData.closed = "in progress";
+    } else {
+      extractedData.closed = "pending";
+    }
+    
+    // If we couldn't extract much, create some default data
+    if (!extractedData.project) {
+      extractedData.project = "Voice Conversation";
+    }
+    
+    if (!extractedData.summary) {
+      // Create a summary based on the conversation length
+      extractedData.summary = `Conversation with ${messages.filter(m => m.role === "user").length} user messages`;
+    }
+    
+    if (!extractedData.hours) {
+      // Use current time as a fallback
+      extractedData.hours = new Date().toISOString();
+    }
+    
+    return extractedData;
+  };
+
   const saveConversationData = async (id: string) => {
     console.log(`Creating data for conversation ID: ${id}`);
     setIsLoadingData(true);
@@ -125,15 +194,10 @@ export const ElevenLabsChat = () => {
     setSavedToDatabase(false);
     
     try {
-      // Create data directly
-      const conversationData: DataCollection = { 
-        project: "Voice Chat",
-        summary: "Voice conversation with AI assistant",
-        hours: new Date().toISOString(),
-        closed: "completed" // Changed from boolean to string
-      };
+      // Extract data from the conversation messages
+      const conversationData = extractDataFromMessages(messages);
       
-      console.log("Saving conversation data for ID:", id, conversationData);
+      console.log("Extracted conversation data for ID:", id, conversationData);
       const saved = await saveToDatabase(id, conversationData);
       
       if (saved) {
@@ -182,6 +246,7 @@ export const ElevenLabsChat = () => {
       // Clear previous conversation data
       setDataCollection(null);
       setSavedToDatabase(false);
+      setMessages([]);
       conversationIdRef.current = null;
       
       const result = await conversation.startSession({ 
