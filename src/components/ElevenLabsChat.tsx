@@ -1,3 +1,4 @@
+
 import { useConversation } from "@11labs/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,12 +19,14 @@ export const ElevenLabsChat = () => {
 
   const conversation = useConversation({
     onConnect: () => {
+      console.log("Connected to AI assistant");
       toast({
         title: "Connected to AI assistant",
         description: "You can now start a conversation with the assistant",
       });
     },
     onDisconnect: () => {
+      console.log("Disconnected from AI assistant");
       setIsStarted(false);
       toast({
         title: "Disconnected from AI assistant",
@@ -31,7 +34,10 @@ export const ElevenLabsChat = () => {
       });
       
       if (conversationId) {
-        fetchDataCollection(conversationId);
+        console.log(`Conversation ended with ID: ${conversationId}, saving data to database...`);
+        saveConversationData(conversationId);
+      } else {
+        console.error("No conversation ID available when disconnected");
       }
     },
     onError: (error) => {
@@ -54,12 +60,14 @@ export const ElevenLabsChat = () => {
         const hasMicrophone = devices.some(device => device.kind === 'audioinput');
         
         if (!hasMicrophone) {
+          console.log("No microphone detected");
           setPermissionGranted(false);
           return;
         }
         
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         stream.getTracks().forEach(track => track.stop());
+        console.log("Microphone permission granted");
         setPermissionGranted(true);
       } catch (error) {
         console.error("Error checking microphone permission:", error);
@@ -71,8 +79,9 @@ export const ElevenLabsChat = () => {
   }, []);
 
   const saveToDatabase = async (id: string, data: DataCollection) => {
+    console.log("Attempting to save to database:", { id, data });
     try {
-      const { error } = await supabase
+      const { error, data: result } = await supabase
         .from('conversation_data')
         .insert({
           conversation_id: id,
@@ -83,7 +92,7 @@ export const ElevenLabsChat = () => {
         });
 
       if (error) {
-        console.error("Error saving to database:", error);
+        console.error("Supabase error saving to database:", error);
         toast({
           variant: "destructive",
           title: "Database Error",
@@ -92,13 +101,14 @@ export const ElevenLabsChat = () => {
         return false;
       }
 
+      console.log("Successfully saved to database:", result);
       toast({
         title: "Saved to Database",
         description: "Conversation data has been saved successfully",
       });
       return true;
     } catch (error) {
-      console.error("Error in saveToDatabase:", error);
+      console.error("Exception in saveToDatabase:", error);
       toast({
         variant: "destructive",
         title: "Database Error",
@@ -108,12 +118,14 @@ export const ElevenLabsChat = () => {
     }
   };
 
-  const fetchDataCollection = async (id: string) => {
+  const saveConversationData = async (id: string) => {
+    console.log(`Creating minimal data for conversation ID: ${id}`);
     setIsLoadingData(true);
     setDataCollection(null);
     setSavedToDatabase(false);
     
     try {
+      // Create minimal data directly without trying to fetch from ElevenLabs
       const minimalData: DataCollection = { 
         project: "Voice Chat",
         summary: "Voice conversation with AI assistant",
@@ -121,17 +133,19 @@ export const ElevenLabsChat = () => {
         closed: true
       };
       
-      console.log("Saving conversation data for ID:", id);
+      console.log("Saving minimal conversation data for ID:", id, minimalData);
       const saved = await saveToDatabase(id, minimalData);
       
       if (saved) {
+        console.log("Successfully saved minimal data to database");
         setDataCollection(minimalData);
         setSavedToDatabase(true);
         toast({
           title: "Conversation Saved",
-          description: "Basic conversation information has been saved.",
+          description: "Conversation information has been saved to database.",
         });
       } else {
+        console.error("Failed to save minimal data to database");
         toast({
           variant: "destructive",
           title: "Save Error",
@@ -139,7 +153,7 @@ export const ElevenLabsChat = () => {
         });
       }
     } catch (error) {
-      console.error("Error in fetchDataCollection:", error);
+      console.error("Error in saveConversationData:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -153,11 +167,13 @@ export const ElevenLabsChat = () => {
   const startConversation = async () => {
     try {
       if (status === "connected") {
+        console.log("Ending conversation session");
         await conversation.endSession();
         setIsStarted(false);
         return;
       }
 
+      console.log("Starting conversation session");
       const result = await conversation.startSession({ 
         agentId: "w3YAPXpuEtNWtT2bqpKZ" 
       });
@@ -168,11 +184,11 @@ export const ElevenLabsChat = () => {
       setDataCollection(null);
       setSavedToDatabase(false);
     } catch (error) {
-      console.error("Error starting conversation:", error);
+      console.error("Error starting/ending conversation:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to start the conversation. Please try again.",
+        description: "Failed to start/end the conversation. Please try again.",
       });
     }
   };
@@ -181,6 +197,7 @@ export const ElevenLabsChat = () => {
     try {
       await conversation.setVolume({ volume: isMuted ? 1.0 : 0.0 });
       setIsMuted(!isMuted);
+      console.log(`Volume ${isMuted ? 'unmuted' : 'muted'}`);
     } catch (error) {
       console.error("Error toggling mute:", error);
     }
