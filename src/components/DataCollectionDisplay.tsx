@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export type DataCollection = {
@@ -13,9 +13,10 @@ export type DataCollection = {
 interface DataCollectionDisplayProps {
   data: DataCollection | null;
   isLoading: boolean;
+  savedToDatabase?: boolean;
 }
 
-const DataCollectionDisplay = ({ data, isLoading }: DataCollectionDisplayProps) => {
+const DataCollectionDisplay = ({ data, isLoading, savedToDatabase }: DataCollectionDisplayProps) => {
   if (isLoading) {
     return (
       <Card className="w-full max-w-md mx-auto mt-6">
@@ -68,6 +69,27 @@ const DataCollectionDisplay = ({ data, isLoading }: DataCollectionDisplayProps) 
           </div>
         )}
       </CardContent>
+      {savedToDatabase !== undefined && (
+        <CardFooter className="pt-2">
+          <div className={`text-sm ${savedToDatabase ? 'text-green-600' : 'text-amber-600'} flex items-center`}>
+            {savedToDatabase ? (
+              <>
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Data saved to database
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Not saved to database yet
+              </>
+            )}
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 };

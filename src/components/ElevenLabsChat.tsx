@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DataCollectionDisplay, { DataCollection } from "./DataCollectionDisplay";
+import { supabase } from "@/integrations/supabase/client";
 
 export const ElevenLabsChat = () => {
   const { toast } = useToast();
@@ -14,6 +15,7 @@ export const ElevenLabsChat = () => {
   const [dataCollection, setDataCollection] = useState<DataCollection | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [savedToDatabase, setSavedToDatabase] = useState(false);
 
   const conversation = useConversation({
     onConnect: () => {
@@ -70,9 +72,49 @@ export const ElevenLabsChat = () => {
     checkMicrophonePermission();
   }, []);
 
+  // Save data to Supabase
+  const saveToDatabase = async (id: string, data: DataCollection) => {
+    try {
+      const { error } = await supabase
+        .from('conversation_data')
+        .insert({
+          conversation_id: id,
+          project: data.project,
+          hours: data.hours,
+          summary: data.summary,
+          closed: data.closed
+        });
+
+      if (error) {
+        console.error("Error saving to database:", error);
+        toast({
+          variant: "destructive",
+          title: "Database Error",
+          description: "Failed to save conversation data to database",
+        });
+        return false;
+      }
+
+      toast({
+        title: "Saved to Database",
+        description: "Conversation data has been saved successfully",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error in saveToDatabase:", error);
+      toast({
+        variant: "destructive",
+        title: "Database Error",
+        description: "An unexpected error occurred while saving data",
+      });
+      return false;
+    }
+  };
+
   const fetchDataCollection = async (id: string) => {
     setIsLoadingData(true);
     setDataCollection(null);
+    setSavedToDatabase(false);
     
     // Implement polling since the data might not be available immediately
     let attempts = 0;
@@ -115,6 +157,10 @@ export const ElevenLabsChat = () => {
           if (Object.values(collectedData).some(value => value !== undefined)) {
             setDataCollection(collectedData);
             setIsLoadingData(false);
+            
+            // Save to Supabase
+            const saved = await saveToDatabase(id, collectedData);
+            setSavedToDatabase(saved);
           } else {
             // If no data is found yet, try again
             attempts++;
@@ -151,6 +197,7 @@ export const ElevenLabsChat = () => {
       setConversationId(result);
       setIsStarted(true);
       setDataCollection(null);
+      setSavedToDatabase(false);
     } catch (error) {
       console.error("Error starting conversation:", error);
       toast({
@@ -232,7 +279,8 @@ export const ElevenLabsChat = () => {
       {(isLoadingData || dataCollection) && (
         <DataCollectionDisplay 
           data={dataCollection} 
-          isLoading={isLoadingData} 
+          isLoading={isLoadingData}
+          savedToDatabase={savedToDatabase} 
         />
       )}
     </div>
