@@ -1,3 +1,4 @@
+
 import { useConversation } from "@11labs/react";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -37,8 +38,20 @@ export const ElevenLabsChat = () => {
       
       if (conversationIdRef.current) {
         console.log(`Conversation ended with ID: ${conversationIdRef.current}, saving data to database...`);
-        saveConversationData(conversationIdRef.current);
-        saveTranscription(conversationIdRef.current);
+        
+        // Extract important data during the conversation
+        const conversationData = extractConversationData();
+        if (conversationData) {
+          console.log("Extracted conversation data:", conversationData);
+          saveConversationData(conversationIdRef.current, conversationData);
+        } else {
+          console.log("No data was extracted from the conversation");
+        }
+        
+        // Always save the transcription, regardless of data collection
+        if (messages.length > 0) {
+          saveTranscription(conversationIdRef.current);
+        }
       } else {
         console.error("No conversation ID available when disconnected");
       }
@@ -76,9 +89,11 @@ export const ElevenLabsChat = () => {
           setDataCollection(collectedData);
         }
       } else if (message.source === "ai") {
+        console.log("Handling AI message from source format");
         const assistantMessage = { role: "assistant", content: message.message || "" };
         setMessages(prev => [...prev, assistantMessage]);
       } else if (message.source === "user") {
+        console.log("Handling user message from source format");
         const userMessage = { role: "user", content: message.message || "" };
         setMessages(prev => [...prev, userMessage]);
       }
@@ -111,6 +126,58 @@ export const ElevenLabsChat = () => {
 
     checkMicrophonePermission();
   }, []);
+  
+  // Extract project, hours, summary and closed data from the messages
+  const extractConversationData = (): DataCollection | null => {
+    // First check if we already have data from the ElevenLabs data collection
+    if (dataCollection && Object.values(dataCollection).some(val => val !== null)) {
+      console.log("Using data collection from ElevenLabs:", dataCollection);
+      return dataCollection;
+    }
+    
+    // If no data collection, try to parse from messages
+    console.log("No ElevenLabs data collection, trying to extract from messages");
+    
+    // Extract project from text in messages
+    const projectMatches = messages.flatMap(message => {
+      const content = message.content;
+      const matches = content.match(/uppdrag(?:snummer)?\s+([A-Za-z0-9-]+)/i) || 
+                      content.match(/projekt(?:et)?\s+([A-Za-z0-9-]+)/i);
+      return matches ? [matches[1]] : [];
+    });
+    
+    // Extract hours from text in messages
+    const hoursMatches = messages.flatMap(message => {
+      const content = message.content;
+      const matches = content.match(/(\d+)\s*(?:timmar|timme|h|hour|hours)/i);
+      return matches ? [matches[1]] : [];
+    });
+    
+    // Try to determine if job is closed/completed
+    const closedMatches = messages.some(message => 
+      message.content.toLowerCase().includes("slutfört") || 
+      message.content.toLowerCase().includes("avslutad") ||
+      message.content.toLowerCase().includes("klar") ||
+      message.content.toLowerCase().includes("färdig") ||
+      message.content.toLowerCase().includes("completed") ||
+      message.content.toLowerCase().includes("done")
+    );
+    
+    // If we have at least some data, return it
+    if (projectMatches.length || hoursMatches.length || closedMatches) {
+      const extractedData: DataCollection = {
+        project: projectMatches.length ? projectMatches[0] : null,
+        hours: hoursMatches.length ? hoursMatches[0] : null,
+        summary: null, // Cannot reliably extract a summary
+        closed: closedMatches ? "Ja" : null
+      };
+      
+      console.log("Extracted data from messages:", extractedData);
+      return extractedData;
+    }
+    
+    return null;
+  };
 
   const saveToDatabase = async (id: string, data: DataCollection) => {
     console.log("Attempting to save to database:", { id, data });
@@ -201,16 +268,15 @@ export const ElevenLabsChat = () => {
     }
   };
 
-  const saveConversationData = async (id: string) => {
-    console.log(`Creating data for conversation ID: ${id}`);
+  const saveConversationData = async (id: string, data: DataCollection) => {
+    console.log(`Creating data for conversation ID: ${id}`, data);
     setIsLoadingData(true);
     setSavedToDatabase(false);
     
     try {
-      // Use data directly from ElevenLabs if available
-      if (dataCollection && Object.keys(dataCollection).length > 0) {
-        console.log("Using collected data from ElevenLabs for ID:", id, dataCollection);
-        const saved = await saveToDatabase(id, dataCollection);
+      if (data && Object.values(data).some(val => val !== null)) {
+        console.log("Using data for conversation ID:", id, data);
+        const saved = await saveToDatabase(id, data);
         
         if (saved) {
           console.log("Successfully saved data to database for conversation ID:", id);
@@ -228,11 +294,11 @@ export const ElevenLabsChat = () => {
           });
         }
       } else {
-        console.error("No data collection available from ElevenLabs for ID:", id);
+        console.error("No data available to save for ID:", id);
         toast({
           variant: "destructive",
           title: "Data Missing",
-          description: "No data collection available from ElevenLabs.",
+          description: "No data available to save.",
         });
       }
     } catch (error) {
@@ -252,9 +318,12 @@ export const ElevenLabsChat = () => {
       if (status === "connected") {
         console.log("Ending conversation session");
         // Save the data before ending the session if it hasn't been saved yet
-        if (conversationIdRef.current && !savedToDatabase && dataCollection) {
-          console.log("Saving data before ending session for ID:", conversationIdRef.current);
-          await saveConversationData(conversationIdRef.current);
+        if (conversationIdRef.current && !savedToDatabase) {
+          const data = extractConversationData();
+          if (data) {
+            console.log("Saving data before ending session for ID:", conversationIdRef.current);
+            await saveConversationData(conversationIdRef.current, data);
+          }
         }
         
         // Save transcription if not already saved
