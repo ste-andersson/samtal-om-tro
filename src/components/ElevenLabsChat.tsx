@@ -1,6 +1,6 @@
 
 import { useConversation } from "@11labs/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +14,7 @@ export const ElevenLabsChat = () => {
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
   const [dataCollection, setDataCollection] = useState<DataCollection | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const conversationIdRef = useRef<string | null>(null);
   const [savedToDatabase, setSavedToDatabase] = useState(false);
 
   const conversation = useConversation({
@@ -33,9 +33,9 @@ export const ElevenLabsChat = () => {
         description: "The conversation has ended",
       });
       
-      if (conversationId) {
-        console.log(`Conversation ended with ID: ${conversationId}, saving data to database...`);
-        saveConversationData(conversationId);
+      if (conversationIdRef.current) {
+        console.log(`Conversation ended with ID: ${conversationIdRef.current}, saving data to database...`);
+        saveConversationData(conversationIdRef.current);
       } else {
         console.error("No conversation ID available when disconnected");
       }
@@ -119,33 +119,33 @@ export const ElevenLabsChat = () => {
   };
 
   const saveConversationData = async (id: string) => {
-    console.log(`Creating minimal data for conversation ID: ${id}`);
+    console.log(`Creating data for conversation ID: ${id}`);
     setIsLoadingData(true);
     setDataCollection(null);
     setSavedToDatabase(false);
     
     try {
-      // Create minimal data directly without trying to fetch from ElevenLabs
-      const minimalData: DataCollection = { 
+      // Create data directly
+      const conversationData: DataCollection = { 
         project: "Voice Chat",
         summary: "Voice conversation with AI assistant",
         hours: new Date().toISOString(),
         closed: true
       };
       
-      console.log("Saving minimal conversation data for ID:", id, minimalData);
-      const saved = await saveToDatabase(id, minimalData);
+      console.log("Saving conversation data for ID:", id, conversationData);
+      const saved = await saveToDatabase(id, conversationData);
       
       if (saved) {
-        console.log("Successfully saved minimal data to database");
-        setDataCollection(minimalData);
+        console.log("Successfully saved data to database for conversation ID:", id);
+        setDataCollection(conversationData);
         setSavedToDatabase(true);
         toast({
           title: "Conversation Saved",
-          description: "Conversation information has been saved to database.",
+          description: `Conversation (ID: ${id.substring(0, 8)}...) has been saved to database.`,
         });
       } else {
-        console.error("Failed to save minimal data to database");
+        console.error("Failed to save data to database for conversation ID:", id);
         toast({
           variant: "destructive",
           title: "Save Error",
@@ -168,21 +168,30 @@ export const ElevenLabsChat = () => {
     try {
       if (status === "connected") {
         console.log("Ending conversation session");
+        // Save the data before ending the session if it hasn't been saved yet
+        if (conversationIdRef.current && !savedToDatabase) {
+          console.log("Saving data before ending session for ID:", conversationIdRef.current);
+          await saveConversationData(conversationIdRef.current);
+        }
         await conversation.endSession();
         setIsStarted(false);
         return;
       }
 
       console.log("Starting conversation session");
+      // Clear previous conversation data
+      setDataCollection(null);
+      setSavedToDatabase(false);
+      conversationIdRef.current = null;
+      
       const result = await conversation.startSession({ 
         agentId: "w3YAPXpuEtNWtT2bqpKZ" 
       });
       
       console.log("Conversation started with ID:", result);
-      setConversationId(result);
+      // Store the conversation ID in the ref so it persists across renders
+      conversationIdRef.current = result;
       setIsStarted(true);
-      setDataCollection(null);
-      setSavedToDatabase(false);
     } catch (error) {
       console.error("Error starting/ending conversation:", error);
       toast({
