@@ -79,10 +79,10 @@ export const ElevenLabsChat = () => {
         .from('conversation_data')
         .insert({
           conversation_id: id,
-          project: data.project,
-          hours: data.hours,
-          summary: data.summary,
-          closed: data.closed
+          project: data.project || null,
+          hours: data.hours || null,
+          summary: data.summary || null,
+          closed: data.closed !== undefined ? data.closed : null
         });
 
       if (error) {
@@ -123,16 +123,29 @@ export const ElevenLabsChat = () => {
     
     const pollForData = async () => {
       if (attempts >= maxAttempts) {
+        console.log(`Max attempts (${maxAttempts}) reached. Saving minimal data.`);
         setIsLoadingData(false);
+        
+        // Even if data collection fails, save at least the conversation ID
+        const minimalData: DataCollection = { 
+          project: "Unknown",
+          summary: "Data collection unavailable"
+        };
+        
+        setDataCollection(minimalData);
+        const saved = await saveToDatabase(id, minimalData);
+        setSavedToDatabase(saved);
+        
         toast({
-          variant: "destructive",
-          title: "Data collection failed",
-          description: "Could not retrieve conversation data after several attempts.",
+          variant: "warning",
+          title: "Limited data collected",
+          description: "Could not retrieve detailed conversation data, but saved basic information.",
         });
         return;
       }
       
       try {
+        console.log(`Attempt ${attempts + 1}/${maxAttempts} to fetch data collection for ID: ${id}`);
         const apiKey = process.env.ELEVEN_LABS_API_KEY || '';
         const response = await fetch(`https://api.elevenlabs.io/v1/convai/conversation/${id}/data-collection`, {
           method: 'GET',
@@ -144,6 +157,7 @@ export const ElevenLabsChat = () => {
         
         if (response.ok) {
           const data = await response.json();
+          console.log("Data collection response:", data);
           
           // Extract the specific fields we need
           const collectedData: DataCollection = {
@@ -167,6 +181,7 @@ export const ElevenLabsChat = () => {
             setTimeout(pollForData, pollInterval);
           }
         } else {
+          console.error(`API error: ${response.status} ${response.statusText}`);
           // If API returns error, wait and try again
           attempts++;
           setTimeout(pollForData, pollInterval);
@@ -194,6 +209,7 @@ export const ElevenLabsChat = () => {
         agentId: "w3YAPXpuEtNWtT2bqpKZ" 
       });
       
+      console.log("Conversation started with ID:", result);
       setConversationId(result);
       setIsStarted(true);
       setDataCollection(null);
