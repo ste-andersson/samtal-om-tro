@@ -1,4 +1,3 @@
-
 import { useConversation } from "@11labs/react";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -37,23 +36,13 @@ export const ElevenLabsChat = () => {
       });
       
       if (conversationIdRef.current) {
-        console.log(`Conversation ended with ID: ${conversationIdRef.current}, saving data to database...`);
+        console.log(`Conversation ended with ID: ${conversationIdRef.current}`);
         
-        // Extract important data during the conversation
-        const conversationData = extractConversationData();
-        if (conversationData) {
-          console.log("Extracted conversation data:", conversationData);
-          saveConversationData(conversationIdRef.current, conversationData);
-        } else {
-          console.log("No data was extracted from the conversation");
-        }
-        
-        // Always save the transcription, regardless of data collection
+        // Save transcription if there are messages
         if (messages.length > 0) {
+          console.log("Saving transcription for messages:", messages);
           saveTranscription(conversationIdRef.current);
         }
-      } else {
-        console.error("No conversation ID available when disconnected");
       }
     },
     onError: (error) => {
@@ -68,16 +57,8 @@ export const ElevenLabsChat = () => {
     onMessage: (message) => {
       console.log("Received message:", message);
       
-      if (message.type === "llm_response" || message.type === "voice_response") {
-        const assistantMessage = { role: "assistant", content: message.text || "" };
-        console.log("Adding assistant message to UI:", assistantMessage);
-        setMessages(prev => [...prev, assistantMessage]);
-      } else if (message.type === "user_response") {
-        const userMessage = { role: "user", content: message.text || "" };
-        console.log("Adding user message to UI:", userMessage);
-        setMessages(prev => [...prev, userMessage]);
-      } else if (message.type === "data_collection") {
-        console.log("Received data collection from ElevenLabs:", message);
+      if (message.type === "data_collection") {
+        console.log("Received data collection:", message);
         if (message.data) {
           const collectedData: DataCollection = {
             project: message.data.project || null,
@@ -85,15 +66,24 @@ export const ElevenLabsChat = () => {
             summary: message.data.summary || null,
             closed: message.data.closed || null
           };
-          console.log("Processed data collection:", collectedData);
+          console.log("Setting data collection:", collectedData);
           setDataCollection(collectedData);
+          
+          // Save data immediately when we receive it
+          if (conversationIdRef.current) {
+            saveConversationData(conversationIdRef.current, collectedData);
+          }
         }
+      } else if (message.type === "llm_response" || message.type === "voice_response") {
+        const assistantMessage = { role: "assistant", content: message.text || "" };
+        setMessages(prev => [...prev, assistantMessage]);
+      } else if (message.type === "user_response") {
+        const userMessage = { role: "user", content: message.text || "" };
+        setMessages(prev => [...prev, userMessage]);
       } else if (message.source === "ai") {
-        console.log("Handling AI message from source format");
         const assistantMessage = { role: "assistant", content: message.message || "" };
         setMessages(prev => [...prev, assistantMessage]);
       } else if (message.source === "user") {
-        console.log("Handling user message from source format");
         const userMessage = { role: "user", content: message.message || "" };
         setMessages(prev => [...prev, userMessage]);
       }
@@ -231,9 +221,10 @@ export const ElevenLabsChat = () => {
         `${msg.role === 'assistant' ? 'A' : 'You'}: ${msg.content}`
       ).join('\n\n');
 
-      console.log("Saving transcription for conversation ID:", id);
-      console.log("Transcription content:", transcriptText);
-      console.log("Messages to save:", messages);
+      console.log("Saving transcription:", {
+        conversation_id: id,
+        transcript: transcriptText
+      });
       
       const { error } = await supabase
         .from('conversation_transcripts')
