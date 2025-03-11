@@ -1,10 +1,10 @@
-
 import { useConversation } from "@11labs/react";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DataCollectionDisplay, { DataCollection } from "./DataCollectionDisplay";
+import TranscriptionDisplay from "./TranscriptionDisplay";
 import { supabase } from "@/integrations/supabase/client";
 
 export const ElevenLabsChat = () => {
@@ -17,6 +17,7 @@ export const ElevenLabsChat = () => {
   const conversationIdRef = useRef<string | null>(null);
   const [savedToDatabase, setSavedToDatabase] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
+  const [transcriptionSaved, setTranscriptionSaved] = useState(false);
 
   const conversation = useConversation({
     onConnect: () => {
@@ -37,6 +38,7 @@ export const ElevenLabsChat = () => {
       if (conversationIdRef.current) {
         console.log(`Conversation ended with ID: ${conversationIdRef.current}, saving data to database...`);
         saveConversationData(conversationIdRef.current);
+        saveTranscription(conversationIdRef.current);
       } else {
         console.error("No conversation ID available when disconnected");
       }
@@ -126,6 +128,53 @@ export const ElevenLabsChat = () => {
         description: "An unexpected error occurred while saving data",
       });
       return false;
+    }
+  };
+
+  const saveTranscription = async (id: string) => {
+    if (!messages.length) {
+      console.log("No messages to save as transcription");
+      return;
+    }
+
+    try {
+      // Format the transcription as a readable text
+      const transcriptText = messages.map(msg => 
+        `${msg.role === 'assistant' ? 'Assistant' : 'User'}: ${msg.content}`
+      ).join('\n\n');
+
+      console.log("Saving transcription for conversation ID:", id);
+      
+      const { error } = await supabase
+        .from('conversation_transcripts')
+        .insert({
+          conversation_id: id,
+          transcript: transcriptText
+        });
+
+      if (error) {
+        console.error("Error saving transcription:", error);
+        toast({
+          variant: "destructive",
+          title: "Transcription Error",
+          description: "Failed to save conversation transcription",
+        });
+        return;
+      }
+
+      console.log("Transcription saved successfully");
+      setTranscriptionSaved(true);
+      toast({
+        title: "Transcription Saved",
+        description: "Conversation transcription has been saved to database",
+      });
+    } catch (error) {
+      console.error("Exception saving transcription:", error);
+      toast({
+        variant: "destructive",
+        title: "Transcription Error",
+        description: "An unexpected error occurred while saving transcription",
+      });
     }
   };
 
@@ -237,6 +286,12 @@ export const ElevenLabsChat = () => {
           console.log("Saving data before ending session for ID:", conversationIdRef.current);
           await saveConversationData(conversationIdRef.current);
         }
+        
+        // Save transcription if not already saved
+        if (conversationIdRef.current && !transcriptionSaved && messages.length > 0) {
+          await saveTranscription(conversationIdRef.current);
+        }
+        
         await conversation.endSession();
         setIsStarted(false);
         return;
@@ -247,6 +302,7 @@ export const ElevenLabsChat = () => {
       setDataCollection(null);
       setSavedToDatabase(false);
       setMessages([]);
+      setTranscriptionSaved(false);
       conversationIdRef.current = null;
       
       const result = await conversation.startSession({ 
@@ -289,7 +345,7 @@ export const ElevenLabsChat = () => {
   }
 
   return (
-    <div className="flex flex-col items-center space-y-6 w-full max-w-md mx-auto">
+    <div className="flex flex-col items-center space-y-6 w-full max-w-xl mx-auto">
       <div className="flex flex-col items-center space-y-6 p-6 bg-white rounded-lg shadow-md w-full">
         <div className="w-full flex justify-between items-center">
           <h2 className="text-2xl font-bold">Voice Assistant</h2>
@@ -334,6 +390,10 @@ export const ElevenLabsChat = () => {
           )}
         </Button>
       </div>
+
+      {messages.length > 0 && (
+        <TranscriptionDisplay messages={messages} />
+      )}
 
       {(isLoadingData || dataCollection) && (
         <DataCollectionDisplay 
