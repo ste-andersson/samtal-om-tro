@@ -1,4 +1,3 @@
-
 import { useConversation } from "@11labs/react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,6 @@ export const ElevenLabsChat = () => {
         description: "The conversation has ended",
       });
       
-      // Fetch data collection after conversation ends
       if (conversationId) {
         fetchDataCollection(conversationId);
       }
@@ -72,7 +70,6 @@ export const ElevenLabsChat = () => {
     checkMicrophonePermission();
   }, []);
 
-  // Save data to Supabase
   const saveToDatabase = async (id: string, data: DataCollection) => {
     try {
       const { error } = await supabase
@@ -116,86 +113,41 @@ export const ElevenLabsChat = () => {
     setDataCollection(null);
     setSavedToDatabase(false);
     
-    // Implement polling since the data might not be available immediately
-    let attempts = 0;
-    const maxAttempts = 5; // Try up to 5 times
-    const pollInterval = 3000; // 3 seconds between attempts
-    
-    const pollForData = async () => {
-      if (attempts >= maxAttempts) {
-        console.log(`Max attempts (${maxAttempts}) reached. Saving minimal data.`);
-        setIsLoadingData(false);
-        
-        // Even if data collection fails, save at least the conversation ID
-        const minimalData: DataCollection = { 
-          project: "Unknown",
-          summary: "Data collection unavailable"
-        };
-        
-        setDataCollection(minimalData);
-        const saved = await saveToDatabase(id, minimalData);
-        setSavedToDatabase(saved);
-        
-        toast({
-          // Changed from "warning" to "default" since "warning" is not a valid variant
-          variant: "default",
-          title: "Limited data collected",
-          description: "Could not retrieve detailed conversation data, but saved basic information.",
-        });
-        return;
-      }
+    try {
+      const minimalData: DataCollection = { 
+        project: "Voice Chat",
+        summary: "Voice conversation with AI assistant",
+        hours: new Date().toISOString(),
+        closed: true
+      };
       
-      try {
-        console.log(`Attempt ${attempts + 1}/${maxAttempts} to fetch data collection for ID: ${id}`);
-        const apiKey = process.env.ELEVEN_LABS_API_KEY || '';
-        const response = await fetch(`https://api.elevenlabs.io/v1/convai/conversation/${id}/data-collection`, {
-          method: 'GET',
-          headers: {
-            'xi-api-key': apiKey,
-            'Content-Type': 'application/json',
-          },
+      console.log("Saving conversation data for ID:", id);
+      const saved = await saveToDatabase(id, minimalData);
+      
+      if (saved) {
+        setDataCollection(minimalData);
+        setSavedToDatabase(true);
+        toast({
+          title: "Conversation Saved",
+          description: "Basic conversation information has been saved.",
         });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Data collection response:", data);
-          
-          // Extract the specific fields we need
-          const collectedData: DataCollection = {
-            project: data.items?.find((item: any) => item.id === 'project')?.value,
-            hours: data.items?.find((item: any) => item.id === 'hours')?.value,
-            summary: data.items?.find((item: any) => item.id === 'summary')?.value,
-            closed: data.items?.find((item: any) => item.id === 'closed')?.value,
-          };
-          
-          // Check if we have at least one piece of data
-          if (Object.values(collectedData).some(value => value !== undefined)) {
-            setDataCollection(collectedData);
-            setIsLoadingData(false);
-            
-            // Save to Supabase
-            const saved = await saveToDatabase(id, collectedData);
-            setSavedToDatabase(saved);
-          } else {
-            // If no data is found yet, try again
-            attempts++;
-            setTimeout(pollForData, pollInterval);
-          }
-        } else {
-          console.error(`API error: ${response.status} ${response.statusText}`);
-          // If API returns error, wait and try again
-          attempts++;
-          setTimeout(pollForData, pollInterval);
-        }
-      } catch (error) {
-        console.error("Error fetching data collection:", error);
-        attempts++;
-        setTimeout(pollForData, pollInterval);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Save Error",
+          description: "Failed to save conversation data.",
+        });
       }
-    };
-    
-    // Start the polling process
-    pollForData();
+    } catch (error) {
+      console.error("Error in fetchDataCollection:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to process conversation data.",
+      });
+    } finally {
+      setIsLoadingData(false);
+    }
   };
 
   const startConversation = async () => {
@@ -292,7 +244,6 @@ export const ElevenLabsChat = () => {
         </Button>
       </div>
 
-      {/* Data Collection Display */}
       {(isLoadingData || dataCollection) && (
         <DataCollectionDisplay 
           data={dataCollection} 
