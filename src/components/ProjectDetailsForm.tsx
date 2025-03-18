@@ -25,6 +25,7 @@ interface ProjectDetailsFormProps {
     hours?: string;
     summary?: string;
     closed?: string;
+    sales_opportunities?: string;
   };
 }
 
@@ -38,6 +39,7 @@ interface FormValues {
   hours: string;
   summary: string;
   closed: boolean;
+  sales_opportunities: string;
 }
 
 const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormProps) => {
@@ -60,6 +62,7 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
       hours: initialData?.hours || "",
       summary: initialData?.summary || "",
       closed: normalizeClosedValue(initialData?.closed),
+      sales_opportunities: initialData?.sales_opportunities || "",
     },
   });
 
@@ -70,6 +73,7 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
         hours: initialData.hours || "",
         summary: initialData.summary || "",
         closed: normalizeClosedValue(initialData.closed),
+        sales_opportunities: initialData.sales_opportunities || "",
       });
     }
   }, [initialData, form]);
@@ -113,6 +117,7 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
           hours: values.hours,
           summary: values.summary,
           closed: values.closed ? "yes" : "no",
+          sales_opportunities: values.sales_opportunities,
         })
         .eq("conversation_id", conversationId);
 
@@ -193,6 +198,24 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
               <FormControl>
                 <Textarea
                   placeholder="Ange en sammanfattning av vad som rapporterats"
+                  className="min-h-[120px]"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="sales_opportunities"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Ytterligare behov</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Ytterligare behov som kan leda till försäljning"
                   className="min-h-[120px]"
                   {...field}
                 />

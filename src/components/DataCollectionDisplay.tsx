@@ -8,6 +8,7 @@ export type DataCollection = {
   hours?: string;
   summary?: string;
   closed?: string;
+  sales_opportunities?: string;
 };
 
 interface DataCollectionDisplayProps {
@@ -61,6 +62,11 @@ const DataCollectionDisplay = ({ data, isLoading, savedToDatabase }: DataCollect
         {data.summary && (
           <div>
             <span className="font-semibold text-brand-dark">Sammanfattning:</span> {data.summary}
+          </div>
+        )}
+        {data.sales_opportunities && (
+          <div>
+            <span className="font-semibold text-brand-dark">Ytterligare behov:</span> {data.sales_opportunities}
           </div>
         )}
         {data.closed !== undefined && (

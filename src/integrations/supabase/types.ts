@@ -17,6 +17,7 @@ export type Database = {
           hours: string | null
           id: string
           project: string | null
+          sales_opportunities: string | null
           summary: string | null
         }
         Insert: {
@@ -26,6 +27,7 @@ export type Database = {
           hours?: string | null
           id?: string
           project?: string | null
+          sales_opportunities?: string | null
           summary?: string | null
         }
         Update: {
@@ -35,6 +37,7 @@ export type Database = {
           hours?: string | null
           id?: string
           project?: string | null
+          sales_opportunities?: string | null
           summary?: string | null
         }
         Relationships: []

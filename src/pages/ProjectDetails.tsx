@@ -24,6 +24,7 @@ const ProjectDetails = () => {
     hours?: string;
     summary?: string;
     closed?: string;
+    sales_opportunities?: string;
   } | null>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +51,7 @@ const ProjectDetails = () => {
         // 1. Fetch existing conversation data if available
         const { data: conversationData, error: conversationError } = await supabase
           .from("conversation_data")
-          .select("project, hours, summary, closed")
+          .select("project, hours, summary, closed, sales_opportunities")
           .eq("conversation_id", conversationId)
           .maybeSingle();
 
@@ -159,6 +160,7 @@ const ProjectDetails = () => {
         hours: analysisResult.hours?.toString() || '',
         summary: analysisResult.summary || '',
         closed: analysisResult.closed === 'yes' || analysisResult.closed === true ? 'yes' : 'no',
+        sales_opportunities: analysisResult.sales_opportunities || '',
       });
 
       // Save the analyzed data to the database
@@ -170,6 +172,7 @@ const ProjectDetails = () => {
           hours: analysisResult.hours?.toString(),
           summary: analysisResult.summary,
           closed: analysisResult.closed === 'yes' || analysisResult.closed === true ? 'yes' : 'no',
+          sales_opportunities: analysisResult.sales_opportunities,
         });
 
       if (updateError) {
