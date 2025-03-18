@@ -19,9 +19,9 @@ interface DataCollectionDisplayProps {
 const DataCollectionDisplay = ({ data, isLoading, savedToDatabase }: DataCollectionDisplayProps) => {
   if (isLoading) {
     return (
-      <Card className="w-full max-w-md mx-auto mt-6">
-        <CardHeader>
-          <CardTitle className="text-xl">
+      <Card className="w-full max-w-md mx-auto mt-6 border-brand-dark/20">
+        <CardHeader className="bg-brand-light/50">
+          <CardTitle className="text-xl font-architekt">
             <Skeleton className="h-6 w-3/4" />
           </CardTitle>
           <CardDescription>
@@ -42,36 +42,36 @@ const DataCollectionDisplay = ({ data, isLoading, savedToDatabase }: DataCollect
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-6">
-      <CardHeader>
-        <CardTitle className="text-xl">Konversationsdata</CardTitle>
-        <CardDescription>Information insamlad under din konversation</CardDescription>
+    <Card className="w-full max-w-md mx-auto mt-6 border-brand-dark/20">
+      <CardHeader className="bg-brand-light/50">
+        <CardTitle className="text-xl font-architekt text-brand-dark">Konversationsdata</CardTitle>
+        <CardDescription className="text-brand-dark/70">Information insamlad under din konversation</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 font-maison">
         {data.project && (
           <div>
-            <span className="font-semibold">Projekt:</span> {data.project}
+            <span className="font-semibold text-brand-dark">Projekt:</span> {data.project}
           </div>
         )}
         {data.hours && (
           <div>
-            <span className="font-semibold">Timmar:</span> {data.hours}
+            <span className="font-semibold text-brand-dark">Timmar:</span> {data.hours}
           </div>
         )}
         {data.summary && (
           <div>
-            <span className="font-semibold">Sammanfattning:</span> {data.summary}
+            <span className="font-semibold text-brand-dark">Sammanfattning:</span> {data.summary}
           </div>
         )}
         {data.closed !== undefined && (
           <div>
-            <span className="font-semibold">Status:</span> {data.closed === "yes" ? "Avslutad" : "Öppen"}
+            <span className="font-semibold text-brand-dark">Status:</span> {data.closed === "yes" ? "Avslutad" : "Öppen"}
           </div>
         )}
       </CardContent>
       {savedToDatabase !== undefined && (
         <CardFooter className="pt-2">
-          <div className={`text-sm ${savedToDatabase ? 'text-green-600' : 'text-amber-600'} flex items-center`}>
+          <div className={`text-sm ${savedToDatabase ? 'text-brand-accent' : 'text-amber-600'} flex items-center font-maison`}>
             {savedToDatabase ? (
               <>
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

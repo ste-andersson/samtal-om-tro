@@ -1,0 +1,9 @@
+
+This file is a placeholder. You will need to replace the following files with actual font files:
+
+- MaisonMono-Regular.woff2
+- MaisonMono-Bold.woff2
+- NBArchitekt-Regular.woff2
+- NBArchitekt-Bold.woff2
+
+Please acquire these fonts from a legal source and place them in this directory.

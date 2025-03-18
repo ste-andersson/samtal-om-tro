@@ -19,9 +19,9 @@ const TranscriptionDisplay: React.FC<TranscriptionDisplayProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <Card className="w-full h-60 overflow-hidden">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">
+      <Card className="w-full h-60 overflow-hidden border-brand-dark/20">
+        <CardHeader className="pb-2 bg-brand-light/50">
+          <CardTitle className="text-lg font-architekt">
             <Skeleton className="h-6 w-1/2" />
           </CardTitle>
         </CardHeader>
@@ -35,17 +35,17 @@ const TranscriptionDisplay: React.FC<TranscriptionDisplayProps> = ({
   }
 
   return (
-    <Card className="w-full h-60 overflow-hidden">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Livetranskription</CardTitle>
+    <Card className="w-full h-60 overflow-hidden border-brand-dark/20">
+      <CardHeader className="pb-2 bg-brand-light/50">
+        <CardTitle className="text-lg font-architekt text-brand-dark">Livetranskription</CardTitle>
       </CardHeader>
-      <CardContent className="overflow-y-auto h-48 space-y-2">
+      <CardContent className="overflow-y-auto h-48 space-y-2 font-maison">
         {messages.length === 0 ? (
-          <p className="text-gray-500 italic">Inga meddelanden än. Starta en konversation för att se transkriptionen.</p>
+          <p className="text-brand-dark/70 italic">Inga meddelanden än. Starta en konversation för att se transkriptionen.</p>
         ) : (
           messages.map((message, index) => (
-            <div key={index} className={`${message.role === "assistant" ? "pl-4 border-l-2 border-blue-400" : "font-medium"}`}>
-              <span className={`${message.role === "assistant" ? "text-blue-600" : "text-green-600"} font-semibold`}>
+            <div key={index} className={`${message.role === "assistant" ? "pl-4 border-l-2 border-brand-accent" : "font-medium"}`}>
+              <span className={`${message.role === "assistant" ? "text-brand-dark" : "text-brand-accent"} font-semibold`}>
                 {message.role === "assistant" ? "Assistent: " : "Du: "}
               </span>
               {message.content}
