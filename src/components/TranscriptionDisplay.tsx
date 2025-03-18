@@ -37,16 +37,16 @@ const TranscriptionDisplay: React.FC<TranscriptionDisplayProps> = ({
   return (
     <Card className="w-full h-60 overflow-hidden">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">Live Transcription</CardTitle>
+        <CardTitle className="text-lg">Livetranskription</CardTitle>
       </CardHeader>
       <CardContent className="overflow-y-auto h-48 space-y-2">
         {messages.length === 0 ? (
-          <p className="text-gray-500 italic">No messages yet. Start a conversation to see the transcription.</p>
+          <p className="text-gray-500 italic">Inga meddelanden än. Starta en konversation för att se transkriptionen.</p>
         ) : (
           messages.map((message, index) => (
             <div key={index} className={`${message.role === "assistant" ? "pl-4 border-l-2 border-blue-400" : "font-medium"}`}>
               <span className={`${message.role === "assistant" ? "text-blue-600" : "text-green-600"} font-semibold`}>
-                {message.role === "assistant" ? "Assistant: " : "You: "}
+                {message.role === "assistant" ? "Assistent: " : "Du: "}
               </span>
               {message.content}
             </div>

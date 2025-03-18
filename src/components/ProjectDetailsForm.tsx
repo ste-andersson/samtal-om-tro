@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -81,11 +82,11 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
           setProjects(data);
         }
       } catch (error) {
-        console.error("Error fetching projects:", error);
+        console.error("Fel vid hämtning av projekt:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Failed to load projects. Please try again.",
+          title: "Fel",
+          description: "Misslyckades med att ladda projekt. Försök igen.",
         });
       }
     };
@@ -111,17 +112,17 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
       }
 
       toast({
-        title: "Form Submitted",
-        description: "Your project details have been saved successfully.",
+        title: "Formulär skickat",
+        description: "Dina projektdetaljer har sparats.",
       });
       
       navigate("/");
     } catch (error) {
-      console.error("Error saving form:", error);
+      console.error("Fel vid sparande av formulär:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to save project details. Please try again.",
+        title: "Fel",
+        description: "Misslyckades med att spara projektdetaljer. Försök igen.",
       });
     } finally {
       setIsLoading(false);
@@ -136,7 +137,7 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
           name="project"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Project</FormLabel>
+              <FormLabel>Projekt</FormLabel>
               <Select 
                 onValueChange={field.onChange} 
                 defaultValue={field.value}
@@ -144,7 +145,7 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a project" />
+                    <SelectValue placeholder="Välj ett projekt" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -165,9 +166,9 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
           name="hours"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Hours</FormLabel>
+              <FormLabel>Timmar</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Enter hours" {...field} />
+                <Input type="number" placeholder="Ange timmar" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -179,10 +180,10 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
           name="summary"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Summary</FormLabel>
+              <FormLabel>Sammanfattning</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Enter a summary of what was reported"
+                  placeholder="Ange en sammanfattning av vad som rapporterats"
                   className="min-h-[120px]"
                   {...field}
                 />
@@ -204,14 +205,14 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
-                <FormLabel>Mark as Closed</FormLabel>
+                <FormLabel>Markera som avslutad</FormLabel>
               </div>
             </FormItem>
           )}
         />
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Saving..." : "Save Project Details"}
+          {isLoading ? "Sparar..." : "Spara projektdetaljer"}
         </Button>
       </form>
     </Form>

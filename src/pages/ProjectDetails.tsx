@@ -36,8 +36,8 @@ const ProjectDetails = () => {
       if (!conversationId) {
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Conversation ID is missing. Redirecting to home page.",
+          title: "Fel",
+          description: "Konversations-ID saknas. Omdirigerar till startsidan.",
         });
         navigate("/");
         return;
@@ -55,7 +55,7 @@ const ProjectDetails = () => {
           .maybeSingle();
 
         if (conversationError) {
-          console.error("Error fetching conversation data:", conversationError);
+          console.error("Fel vid hämtning av konversationsdata:", conversationError);
           // Don't throw here, try to continue with other data
         }
 
@@ -67,7 +67,7 @@ const ProjectDetails = () => {
           .maybeSingle();
 
         if (transcriptError) {
-          console.error("Error fetching transcript:", transcriptError);
+          console.error("Fel vid hämtning av transkription:", transcriptError);
           // Don't throw here, try to continue with other data
         }
 
@@ -78,7 +78,7 @@ const ProjectDetails = () => {
           .order("uppdragsnr");
 
         if (projectsError) {
-          console.error("Error fetching projects:", projectsError);
+          console.error("Fel vid hämtning av projekt:", projectsError);
           // Don't throw here, use what we have
         }
 
@@ -96,12 +96,12 @@ const ProjectDetails = () => {
         
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Failed to load data. Please try again.");
+        console.error("Fel vid hämtning av data:", error);
+        setError("Misslyckades med att ladda data. Försök igen.");
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Failed to load data. Please try again.",
+          title: "Fel",
+          description: "Misslyckades med att ladda data. Försök igen.",
         });
         setIsLoading(false);
       }
@@ -130,8 +130,8 @@ const ProjectDetails = () => {
     setIsAnalyzing(true);
     try {
       toast({
-        title: "Analyzing",
-        description: "Analyzing conversation transcript...",
+        title: "Analyserar",
+        description: "Analyserar konversationstranskript...",
       });
 
       const { data: analysisResult, error } = await supabase.functions.invoke('analyze-transcript', {
@@ -143,15 +143,15 @@ const ProjectDetails = () => {
       });
 
       if (error) {
-        console.error("Supabase function error:", error);
-        throw new Error(`Function invocation error: ${error.message}`);
+        console.error("Supabase-funktionsfel:", error);
+        throw new Error(`Fel vid funktionsanrop: ${error.message}`);
       }
 
       if (!analysisResult) {
-        throw new Error("No analysis result returned");
+        throw new Error("Inget analysresultat returnerades");
       }
 
-      console.log("Analysis result:", analysisResult);
+      console.log("Analysresultat:", analysisResult);
 
       // Update the form data with the analysis results
       setData({
@@ -173,20 +173,20 @@ const ProjectDetails = () => {
         });
 
       if (updateError) {
-        console.error("Error saving analysis:", updateError);
+        console.error("Fel vid sparande av analys:", updateError);
         throw updateError;
       }
 
       toast({
-        title: "Analysis Complete",
-        description: "The form has been populated with data from the conversation.",
+        title: "Analys slutförd",
+        description: "Formuläret har fyllts i med data från konversationen.",
       });
     } catch (error) {
-      console.error("Error analyzing transcript:", error);
+      console.error("Fel vid analys av transkript:", error);
       toast({
         variant: "destructive",
-        title: "Analysis Error",
-        description: "Failed to analyze the conversation. Please try again.",
+        title: "Analysfel",
+        description: "Misslyckades med att analysera konversationen. Försök igen.",
       });
     } finally {
       setIsAnalyzing(false);
@@ -207,14 +207,14 @@ const ProjectDetails = () => {
       <div className="container mx-auto px-4 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>Error</CardTitle>
+            <CardTitle>Fel</CardTitle>
             <CardDescription>
               {error}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={handleRetry} className="w-full">
-              <RefreshCw className="mr-2 h-4 w-4" /> Retry
+              <RefreshCw className="mr-2 h-4 w-4" /> Försök igen
             </Button>
           </CardContent>
         </Card>
@@ -247,10 +247,10 @@ const ProjectDetails = () => {
     <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Project Details</CardTitle>
+          <CardTitle>Projektdetaljer</CardTitle>
           <CardDescription>
-            Details about the project discussed in your conversation.
-            {isAnalyzing ? " Analyzing conversation..." : ""}
+            Detaljer om projektet som diskuterades i din konversation.
+            {isAnalyzing ? " Analyserar konversation..." : ""}
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -16,42 +16,42 @@ serve(async (req) => {
   try {
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')
     if (!OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY is not set')
+      throw new Error('OPENAI_API_KEY är inte inställd')
     }
 
     const requestBody = await req.json().catch(err => {
-      console.error("Failed to parse request body:", err);
-      throw new Error('Invalid JSON in request body');
+      console.error("Misslyckades med att tolka request body:", err);
+      throw new Error('Ogiltig JSON i request body');
     });
     
     const { transcript, conversationId, projectOptions } = requestBody;
 
     if (!transcript || !conversationId) {
-      throw new Error('Missing required parameters: transcript or conversationId')
+      throw new Error('Saknar nödvändiga parametrar: transcript eller conversationId')
     }
 
-    console.log(`Processing transcript analysis for conversation: ${conversationId}`)
-    console.log(`Available project options: ${JSON.stringify(projectOptions)}`)
+    console.log(`Bearbetar transkriptionsanalys för konversation: ${conversationId}`)
+    console.log(`Tillgängliga projektalternativ: ${JSON.stringify(projectOptions)}`)
     
     // Prepare the system message with project options if available
-    let systemContent = `You are an assistant that extracts structured data from conversation transcripts.
-            Extract the following information from the transcript:
-            - Project number (format like "12345")
-            - Hours reported (a number)
-            - Summary of what was discussed/reported
-            - Whether the case should be marked as closed (yes/no)`
+    let systemContent = `Du är en assistent som extraherar strukturerad data från konversationstranskript.
+            Extrahera följande information från transkriptet:
+            - Projektnummer (format som "12345")
+            - Rapporterade timmar (ett nummer)
+            - Sammanfattning av vad som diskuterades/rapporterades
+            - Om ärendet ska markeras som avslutat (ja/nej)`
     
     // Add project options context if available
     if (projectOptions && projectOptions.length > 0) {
-      systemContent += `\n\nFor the project, select the best matching option from this list:
+      systemContent += `\n\nFör projektet, välj det bäst matchande alternativet från denna lista:
 ${projectOptions.map(p => `- ${p.uppdragsnr} - ${p.kund}`).join('\n')}
 
-Choose the project number that most closely matches what's mentioned in the transcript. If nothing matches, just provide the project number mentioned in the transcript.`
+Välj det projektnummer som bäst matchar det som nämns i transkriptet. Om inget matchar, ange bara det projektnummer som nämns i transkriptet.`
     }
     
-    systemContent += `\nFormat your response as a JSON object with keys: project, hours, summary, closed`
+    systemContent += `\nFormatera ditt svar som ett JSON-objekt med nycklarna: project, hours, summary, closed`
     
-    console.log("Sending request to OpenAI with system content:", systemContent);
+    console.log("Skickar förfrågan till OpenAI med systeminnehåll:", systemContent);
     
     // Query OpenAI to analyze the transcript
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -78,33 +78,33 @@ Choose the project number that most closely matches what's mentioned in the tran
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`OpenAI API error (${response.status}):`, errorText);
-      throw new Error(`OpenAI API error: ${response.status} ${errorText}`);
+      console.error(`OpenAI API-fel (${response.status}):`, errorText);
+      throw new Error(`OpenAI API-fel: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('OpenAI response:', JSON.stringify(data));
+    console.log('OpenAI-svar:', JSON.stringify(data));
 
     if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-      console.error('Invalid response structure from OpenAI:', data);
-      throw new Error('Invalid response from OpenAI');
+      console.error('Ogiltig svarsstruktur från OpenAI:', data);
+      throw new Error('Ogiltigt svar från OpenAI');
     }
 
     // Parse the JSON response from OpenAI
     let analysisResult;
     try {
       analysisResult = JSON.parse(data.choices[0].message.content);
-      console.log('Extracted data:', analysisResult);
+      console.log('Extraherad data:', analysisResult);
     } catch (parseError) {
-      console.error('Failed to parse OpenAI response as JSON:', parseError, data.choices[0].message.content);
-      throw new Error('Failed to parse OpenAI response');
+      console.error('Misslyckades med att tolka OpenAI-svar som JSON:', parseError, data.choices[0].message.content);
+      throw new Error('Misslyckades med att tolka OpenAI-svar');
     }
 
     return new Response(JSON.stringify(analysisResult), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   } catch (error) {
-    console.error('Error in analyze-transcript function:', error);
+    console.error('Fel i analyze-transcript-funktionen:', error);
     return new Response(JSON.stringify({ 
       error: error.message,
       details: error.stack
