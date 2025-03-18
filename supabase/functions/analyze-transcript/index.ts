@@ -39,7 +39,20 @@ serve(async (req) => {
             - Projektnummer (format som "12345")
             - Rapporterade timmar (ett nummer)
             - Sammanfattning av vad som diskuterades/rapporterades
-            - Om ärendet ska markeras som avslutat (ja/nej)`
+            - Om ärendet ska markeras som avslutat (ja/nej)
+            
+            För att avgöra om ärendet ska markeras som avslutat, leta efter fraser som indikerar att arbetet är färdigt, som:
+            - "arbetet är klart"
+            - "projektet är avslutat"
+            - "jag är färdig med"
+            - "vi har slutfört"
+            - "nu är det klart"
+            - "allt är klart"
+            - "det är färdigt"
+            
+            Om du hittar sådana fraser, svara "ja" för att markera ärendet som avslutat.
+            Om det finns indikationer på att arbetet fortsätter eller att det är oavslutat, svara "nej".
+            Om det är osäkert, väg övervägande innehåll (fler fraser som indikerar "avslutat" än "pågående") och gör ditt bästa antagande.`
     
     // Add project options context if available
     if (projectOptions && projectOptions.length > 0) {
