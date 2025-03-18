@@ -51,13 +51,21 @@ export const ElevenLabsChat = () => {
     checkMicrophonePermission();
   }, []);
 
+  // Log the current state values to debug navigation issues
+  useEffect(() => {
+    console.log("Conversation status:", status);
+    console.log("Has saved to database:", savedToDatabase);
+    console.log("Has data collection:", !!dataCollection);
+    console.log("Conversation ID:", conversationId);
+  }, [status, savedToDatabase, dataCollection, conversationId]);
+
   // Navigate to project details page when conversation ends and data is saved
   useEffect(() => {
-    if (status === "disconnected" && savedToDatabase && dataCollection && conversationId) {
+    if (status === "disconnected" && conversationId) {
       console.log("Conversation ended, navigating to project details page");
       navigate(`/project-details/${conversationId}`);
     }
-  }, [status, savedToDatabase, dataCollection, conversationId, navigate]);
+  }, [status, conversationId, navigate]);
 
   return (
     <div className="flex flex-col items-center space-y-6 w-full max-w-xl mx-auto">

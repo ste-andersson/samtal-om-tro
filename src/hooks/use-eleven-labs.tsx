@@ -1,5 +1,6 @@
+
 import { useConversation } from "@11labs/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { DataCollection } from "@/components/DataCollectionDisplay";
@@ -223,6 +224,14 @@ export const useElevenLabs = () => {
       }
     }
   });
+
+  // Ensure we detect disconnections by monitoring the status
+  useEffect(() => {
+    if (conversation.status === "disconnected" && isStarted) {
+      setIsStarted(false);
+      console.log("Status changed to disconnected - ensure navigation happens");
+    }
+  }, [conversation.status, isStarted]);
 
   const startConversation = async () => {
     try {
