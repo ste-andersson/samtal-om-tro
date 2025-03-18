@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -211,8 +210,8 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Sparar..." : "Spara projektdetaljer"}
+        <Button type="submit" className="w-full uppercase" disabled={isLoading}>
+          {isLoading ? "SPARAR..." : "SPARA PROJEKTDETALJER"}
         </Button>
       </form>
     </Form>

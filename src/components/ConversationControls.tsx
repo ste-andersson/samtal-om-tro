@@ -24,7 +24,7 @@ const ConversationControls: FC<ConversationControlsProps> = ({
   return (
     <div className="flex flex-col items-center space-y-6 p-6 bg-white rounded-lg shadow-md w-full border border-brand-dark/10">
       <div className="w-full flex justify-between items-center">
-        <h2 className="text-2xl font-bold font-architekt text-brand-dark">Röstassistent</h2>
+        <h2 className="text-2xl font-bold font-maison text-brand-dark">Röstassistent</h2>
         {status === "connected" && (
           <Button 
             variant="outline" 
@@ -51,18 +51,18 @@ const ConversationControls: FC<ConversationControlsProps> = ({
       </div>
 
       <Button 
-        className="w-full bg-brand-accent text-brand-dark hover:bg-brand-accent/80 font-maison"
+        className="w-full bg-brand-accent text-brand-dark hover:bg-brand-accent/80 font-maison uppercase"
         onClick={onStart}
         disabled={permissionGranted === null}
         variant={status === "connected" ? "destructive" : "default"}
       >
         {status === "connected" ? (
           <>
-            <MicOff className="mr-2 h-5 w-5" /> Avsluta konversation
+            <MicOff className="mr-2 h-5 w-5" /> AVSLUTA KONVERSATION
           </>
         ) : (
           <>
-            <Mic className="mr-2 h-5 w-5" /> Starta konversation
+            <Mic className="mr-2 h-5 w-5" /> STARTA KONVERSATION
           </>
         )}
       </Button>

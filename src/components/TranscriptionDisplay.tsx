@@ -21,7 +21,7 @@ const TranscriptionDisplay: React.FC<TranscriptionDisplayProps> = ({
     return (
       <Card className="w-full h-60 overflow-hidden border-brand-dark/20">
         <CardHeader className="pb-2 bg-brand-light/50">
-          <CardTitle className="text-lg font-architekt">
+          <CardTitle className="text-lg font-maison">
             <Skeleton className="h-6 w-1/2" />
           </CardTitle>
         </CardHeader>
@@ -37,7 +37,7 @@ const TranscriptionDisplay: React.FC<TranscriptionDisplayProps> = ({
   return (
     <Card className="w-full h-60 overflow-hidden border-brand-dark/20">
       <CardHeader className="pb-2 bg-brand-light/50">
-        <CardTitle className="text-lg font-architekt text-brand-dark">Livetranskription</CardTitle>
+        <CardTitle className="text-lg font-maison text-brand-dark">Livetranskription</CardTitle>
       </CardHeader>
       <CardContent className="overflow-y-auto h-48 space-y-2 font-maison">
         {messages.length === 0 ? (

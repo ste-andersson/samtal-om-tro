@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -63,7 +62,6 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// New brand colors
 				brand: {
 					light: '#dbeded',
 					dark: '#334c4d',
@@ -72,7 +70,6 @@ export default {
 			},
 			fontFamily: {
 				'maison': ['MaisonMono', 'monospace'],
-				'architekt': ['NB Architekt', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
