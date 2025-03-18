@@ -28,6 +28,12 @@ export const useElevenLabs = () => {
       return;
     }
 
+    // If transcription is already saved for this conversation, don't save it again
+    if (transcriptionSaved && id === conversationIdRef.current) {
+      console.log("Transcription already saved for this conversation");
+      return;
+    }
+
     try {
       const transcriptText = messages.map(msg => 
         `${msg.role === 'assistant' ? 'A' : 'You'}: ${msg.content}`
@@ -230,8 +236,26 @@ export const useElevenLabs = () => {
     if (conversation.status === "disconnected" && isStarted) {
       setIsStarted(false);
       console.log("Status changed to disconnected - ensure navigation happens");
+      
+      // If we have a conversation ID and there are messages, save the transcription
+      if (conversationIdRef.current && messages.length > 0 && !transcriptionSaved) {
+        console.log("Saving transcription on disconnect status change");
+        saveTranscription(conversationIdRef.current);
+      }
     }
-  }, [conversation.status, isStarted]);
+  }, [conversation.status, isStarted, messages, transcriptionSaved]);
+
+  // Add a separate effect to save transcription when messages change
+  // This is a safety measure in case the onDisconnect callback doesn't fire
+  useEffect(() => {
+    if (conversationIdRef.current && 
+        messages.length > 0 && 
+        conversation.status === "disconnected" && 
+        !transcriptionSaved) {
+      console.log("Saving transcription after messages updated and conversation disconnected");
+      saveTranscription(conversationIdRef.current);
+    }
+  }, [messages, conversation.status, transcriptionSaved]);
 
   const startConversation = async () => {
     try {
