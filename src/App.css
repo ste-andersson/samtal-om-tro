@@ -1,8 +1,23 @@
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  color: #44525F;
+}
+
+a {
+  color: #005baa;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #0087cd;
 }
 
 .logo {
@@ -12,10 +27,10 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em rgba(0, 91, 170, 0.6));
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em rgba(0, 135, 205, 0.6));
 }
 
 @keyframes logo-spin {
@@ -39,4 +54,37 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Hantverksdata specific styles */
+.hantverksdata-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.hantverksdata-button {
+  background-color: #005baa;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.hantverksdata-button:hover {
+  background-color: #0087cd;
+}
+
+.hantverksdata-section {
+  padding: 3rem 0;
+}
+
+.hantverksdata-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
