@@ -19,7 +19,12 @@ serve(async (req) => {
       throw new Error('OPENAI_API_KEY is not set')
     }
 
-    const { transcript, conversationId, projectOptions } = await req.json()
+    const requestBody = await req.json().catch(err => {
+      console.error("Failed to parse request body:", err);
+      throw new Error('Invalid JSON in request body');
+    });
+    
+    const { transcript, conversationId, projectOptions } = requestBody;
 
     if (!transcript || !conversationId) {
       throw new Error('Missing required parameters: transcript or conversationId')
@@ -46,6 +51,8 @@ Choose the project number that most closely matches what's mentioned in the tran
     
     systemContent += `\nFormat your response as a JSON object with keys: project, hours, summary, closed`
     
+    console.log("Sending request to OpenAI with system content:", systemContent);
+    
     // Query OpenAI to analyze the transcript
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -67,25 +74,41 @@ Choose the project number that most closely matches what's mentioned in the tran
         ],
         response_format: { type: 'json_object' }
       })
-    })
+    });
 
-    const data = await response.json()
-    console.log('OpenAI response:', JSON.stringify(data))
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`OpenAI API error (${response.status}):`, errorText);
+      throw new Error(`OpenAI API error: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('OpenAI response:', JSON.stringify(data));
 
     if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-      throw new Error('Invalid response from OpenAI')
+      console.error('Invalid response structure from OpenAI:', data);
+      throw new Error('Invalid response from OpenAI');
     }
 
     // Parse the JSON response from OpenAI
-    const analysisResult = JSON.parse(data.choices[0].message.content)
-    console.log('Extracted data:', analysisResult)
+    let analysisResult;
+    try {
+      analysisResult = JSON.parse(data.choices[0].message.content);
+      console.log('Extracted data:', analysisResult);
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response as JSON:', parseError, data.choices[0].message.content);
+      throw new Error('Failed to parse OpenAI response');
+    }
 
     return new Response(JSON.stringify(analysisResult), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   } catch (error) {
-    console.error('Error in analyze-transcript function:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error('Error in analyze-transcript function:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      details: error.stack
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })

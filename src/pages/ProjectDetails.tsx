@@ -6,6 +6,8 @@ import ProjectDetailsForm from "@/components/ProjectDetailsForm";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 interface ProjectOption {
   uppdragsnr: string;
@@ -24,6 +26,7 @@ const ProjectDetails = () => {
     closed?: string;
   } | null>(null);
   const [transcript, setTranscript] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -42,16 +45,18 @@ const ProjectDetails = () => {
 
       try {
         setIsLoading(true);
+        setError(null);
         
         // 1. Fetch existing conversation data if available
         const { data: conversationData, error: conversationError } = await supabase
           .from("conversation_data")
           .select("project, hours, summary, closed")
           .eq("conversation_id", conversationId)
-          .single();
+          .maybeSingle();
 
-        if (conversationError && conversationError.code !== 'PGRST116') {
-          throw conversationError;
+        if (conversationError) {
+          console.error("Error fetching conversation data:", conversationError);
+          // Don't throw here, try to continue with other data
         }
 
         // 2. Fetch transcript
@@ -59,10 +64,11 @@ const ProjectDetails = () => {
           .from("conversation_transcripts")
           .select("transcript")
           .eq("conversation_id", conversationId)
-          .single();
+          .maybeSingle();
 
-        if (transcriptError && transcriptError.code !== 'PGRST116') {
-          throw transcriptError;
+        if (transcriptError) {
+          console.error("Error fetching transcript:", transcriptError);
+          // Don't throw here, try to continue with other data
         }
 
         // 3. Fetch available projects
@@ -72,7 +78,8 @@ const ProjectDetails = () => {
           .order("uppdragsnr");
 
         if (projectsError) {
-          throw projectsError;
+          console.error("Error fetching projects:", projectsError);
+          // Don't throw here, use what we have
         }
 
         setData(conversationData || null);
@@ -85,11 +92,12 @@ const ProjectDetails = () => {
         
         if (shouldAnalyze) {
           // We'll analyze in the next useEffect to ensure all state is updated
-        } else {
-          setIsLoading(false);
-        }
+        } 
+        
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
+        setError("Failed to load data. Please try again.");
         toast({
           variant: "destructive",
           title: "Error",
@@ -134,35 +142,45 @@ const ProjectDetails = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase function error:", error);
+        throw new Error(`Function invocation error: ${error.message}`);
+      }
 
-      if (analysisResult) {
-        // Update the form data with the analysis results
-        setData({
-          project: analysisResult.project || '',
-          hours: analysisResult.hours?.toString() || '',
-          summary: analysisResult.summary || '',
+      if (!analysisResult) {
+        throw new Error("No analysis result returned");
+      }
+
+      console.log("Analysis result:", analysisResult);
+
+      // Update the form data with the analysis results
+      setData({
+        project: analysisResult.project || '',
+        hours: analysisResult.hours?.toString() || '',
+        summary: analysisResult.summary || '',
+        closed: analysisResult.closed === 'yes' || analysisResult.closed === true ? 'yes' : 'no',
+      });
+
+      // Save the analyzed data to the database
+      const { error: updateError } = await supabase
+        .from("conversation_data")
+        .upsert({
+          conversation_id: conversationId,
+          project: analysisResult.project,
+          hours: analysisResult.hours?.toString(),
+          summary: analysisResult.summary,
           closed: analysisResult.closed === 'yes' || analysisResult.closed === true ? 'yes' : 'no',
         });
 
-        // Save the analyzed data to the database
-        const { error: updateError } = await supabase
-          .from("conversation_data")
-          .upsert({
-            conversation_id: conversationId,
-            project: analysisResult.project,
-            hours: analysisResult.hours?.toString(),
-            summary: analysisResult.summary,
-            closed: analysisResult.closed === 'yes' || analysisResult.closed === true ? 'yes' : 'no',
-          });
-
-        if (updateError) throw updateError;
-
-        toast({
-          title: "Analysis Complete",
-          description: "The form has been populated with data from the conversation.",
-        });
+      if (updateError) {
+        console.error("Error saving analysis:", updateError);
+        throw updateError;
       }
+
+      toast({
+        title: "Analysis Complete",
+        description: "The form has been populated with data from the conversation.",
+      });
     } catch (error) {
       console.error("Error analyzing transcript:", error);
       toast({
@@ -172,9 +190,37 @@ const ProjectDetails = () => {
       });
     } finally {
       setIsAnalyzing(false);
-      setIsLoading(false);
     }
   };
+
+  // Handle manual retry
+  const handleRetry = () => {
+    setIsLoading(true);
+    setError(null);
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  };
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>
+              {error}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={handleRetry} className="w-full">
+              <RefreshCw className="mr-2 h-4 w-4" /> Retry
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading || isAnalyzing) {
     return (
