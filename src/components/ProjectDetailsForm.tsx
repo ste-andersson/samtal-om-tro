@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -45,25 +46,33 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (initialData) {
-      form.reset({
-        project: initialData.project || "",
-        hours: initialData.hours || "",
-        summary: initialData.summary || "",
-        closed: initialData.closed === "yes",
-      });
-    }
-  }, [initialData]);
+  // Normalize closed value from any format to boolean
+  const normalizeClosedValue = (value: string | undefined): boolean => {
+    if (!value) return false;
+    
+    const lowercaseValue = value.toLowerCase();
+    return lowercaseValue === 'yes' || lowercaseValue === 'ja' || lowercaseValue === 'true';
+  };
 
   const form = useForm<FormValues>({
     defaultValues: {
       project: initialData?.project || "",
       hours: initialData?.hours || "",
       summary: initialData?.summary || "",
-      closed: initialData?.closed === "yes",
+      closed: normalizeClosedValue(initialData?.closed),
     },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        project: initialData.project || "",
+        hours: initialData.hours || "",
+        summary: initialData.summary || "",
+        closed: normalizeClosedValue(initialData.closed),
+      });
+    }
+  }, [initialData, form]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -96,6 +105,7 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
+      // Store closed status as "yes" or "no" in the database
       const { error } = await supabase
         .from("conversation_data")
         .update({

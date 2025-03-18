@@ -49,6 +49,12 @@ serve(async (req) => {
             - "nu är det klart"
             - "allt är klart"
             - "det är färdigt"
+            - "är klar"
+            - "är klart"
+            - "är avslutat"
+            - "är slutfört"
+            - "klar med"
+            - "klart med"
             
             Om du hittar sådana fraser, svara "ja" för att markera ärendet som avslutat.
             Om det finns indikationer på att arbetet fortsätter eller att det är oavslutat, svara "nej".
@@ -62,7 +68,7 @@ ${projectOptions.map(p => `- ${p.uppdragsnr} - ${p.kund}`).join('\n')}
 Välj det projektnummer som bäst matchar det som nämns i transkriptet. Om inget matchar, ange bara det projektnummer som nämns i transkriptet.`
     }
     
-    systemContent += `\nFormatera ditt svar som ett JSON-objekt med nycklarna: project, hours, summary, closed`
+    systemContent += `\nFormatera ditt svar som ett JSON-objekt med nycklarna: project, hours, summary, closed. För closed-fältet, använd ENDAST "ja" eller "nej" (endast små bokstäver).`
     
     console.log("Skickar förfrågan till OpenAI med systeminnehåll:", systemContent);
     
@@ -108,6 +114,22 @@ Välj det projektnummer som bäst matchar det som nämns i transkriptet. Om inge
     try {
       analysisResult = JSON.parse(data.choices[0].message.content);
       console.log('Extraherad data:', analysisResult);
+      
+      // Normalize the "closed" field to always be "yes" or "no"
+      if (analysisResult.closed) {
+        const closedValue = String(analysisResult.closed).toLowerCase();
+        // Convert various forms to consistent yes/no format
+        if (closedValue === 'ja' || closedValue === 'yes' || closedValue === 'true' || closedValue === '1') {
+          analysisResult.closed = 'yes';
+        } else {
+          analysisResult.closed = 'no';
+        }
+        console.log('Normaliserad closed-status:', analysisResult.closed);
+      } else {
+        // Default to "no" if missing
+        analysisResult.closed = 'no';
+        console.log('Saknas closed-status, sätter till "no"');
+      }
     } catch (parseError) {
       console.error('Misslyckades med att tolka OpenAI-svar som JSON:', parseError, data.choices[0].message.content);
       throw new Error('Misslyckades med att tolka OpenAI-svar');
