@@ -1,4 +1,3 @@
-
 import { useConversation } from "@11labs/react";
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +19,7 @@ export const useElevenLabs = () => {
   const [savedToDatabase, setSavedToDatabase] = useState(false);
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [transcriptionSaved, setTranscriptionSaved] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const saveTranscription = async (id: string) => {
     if (!messages.length) {
@@ -28,7 +28,6 @@ export const useElevenLabs = () => {
     }
 
     try {
-      // Format the transcription as a readable text
       const transcriptText = messages.map(msg => 
         `${msg.role === 'assistant' ? 'A' : 'You'}: ${msg.content}`
       ).join('\n\n');
@@ -175,7 +174,6 @@ export const useElevenLabs = () => {
       if (conversationIdRef.current) {
         console.log(`Conversation ended with ID: ${conversationIdRef.current}`);
         
-        // Save transcription if there are messages
         if (messages.length > 0) {
           console.log("Saving transcription for messages:", messages);
           saveTranscription(conversationIdRef.current);
@@ -206,7 +204,6 @@ export const useElevenLabs = () => {
           console.log("Setting data collection:", collectedData);
           setDataCollection(collectedData);
           
-          // Save data immediately when we receive it
           if (conversationIdRef.current) {
             saveConversationData(conversationIdRef.current, collectedData);
           }
@@ -232,7 +229,6 @@ export const useElevenLabs = () => {
       if (conversation.status === "connected") {
         console.log("Ending conversation session");
         
-        // Save transcription if not already saved
         if (conversationIdRef.current && !transcriptionSaved && messages.length > 0) {
           await saveTranscription(conversationIdRef.current);
         }
@@ -243,20 +239,20 @@ export const useElevenLabs = () => {
       }
 
       console.log("Starting conversation session");
-      // Clear previous conversation data
       setDataCollection(null);
       setSavedToDatabase(false);
       setMessages([]);
       setTranscriptionSaved(false);
       conversationIdRef.current = null;
+      setConversationId(null);
       
       const result = await conversation.startSession({ 
         agentId: "w3YAPXpuEtNWtT2bqpKZ" 
       });
       
       console.log("Conversation started with ID:", result);
-      // Store the conversation ID in the ref so it persists across renders
       conversationIdRef.current = result;
+      setConversationId(result);
       setIsStarted(true);
     } catch (error) {
       console.error("Error starting/ending conversation:", error);
@@ -287,7 +283,8 @@ export const useElevenLabs = () => {
     savedToDatabase,
     messages,
     startConversation,
-    toggleMute
+    toggleMute,
+    conversationId: conversationId
   };
 };
 

@@ -20,7 +20,8 @@ export const ElevenLabsChat = () => {
     savedToDatabase,
     messages,
     startConversation,
-    toggleMute
+    toggleMute,
+    conversationId
   } = useElevenLabs();
 
   const { status, isSpeaking } = conversation;
@@ -52,11 +53,11 @@ export const ElevenLabsChat = () => {
 
   // Navigate to project details page when conversation ends and data is saved
   useEffect(() => {
-    if (status === "disconnected" && savedToDatabase && dataCollection && conversation.sessionId) {
+    if (status === "disconnected" && savedToDatabase && dataCollection && conversationId) {
       console.log("Conversation ended, navigating to project details page");
-      navigate(`/project-details/${conversation.sessionId}`);
+      navigate(`/project-details/${conversationId}`);
     }
-  }, [status, savedToDatabase, dataCollection, conversation.sessionId, navigate]);
+  }, [status, savedToDatabase, dataCollection, conversationId, navigate]);
 
   return (
     <div className="flex flex-col items-center space-y-6 w-full max-w-xl mx-auto">
