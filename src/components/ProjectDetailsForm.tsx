@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -45,6 +44,17 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        project: initialData.project || "",
+        hours: initialData.hours || "",
+        summary: initialData.summary || "",
+        closed: initialData.closed === "yes",
+      });
+    }
+  }, [initialData]);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -130,6 +140,7 @@ const ProjectDetailsForm = ({ conversationId, initialData }: ProjectDetailsFormP
               <Select 
                 onValueChange={field.onChange} 
                 defaultValue={field.value}
+                value={field.value}
               >
                 <FormControl>
                   <SelectTrigger>
