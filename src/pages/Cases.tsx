@@ -1,6 +1,16 @@
 import { Navigation } from '@/components/Navigation';
+import { cases, Case } from '@/types/case';
+import { useCase } from '@/contexts/CaseContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const Cases = () => {
+  const { selectedCase, setSelectedCase } = useCase();
+
+  const handleCaseSelect = (caseItem: Case) => {
+    setSelectedCase(caseItem);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -15,10 +25,26 @@ const Cases = () => {
         </header>
         
         <main className="flex justify-center">
-          <div className="w-full max-w-4xl bg-card rounded-lg border border-border p-8 text-center">
-            <p className="text-muted-foreground">
-              Den här sidan kommer att innehålla ärendehantering för tillsyn.
-            </p>
+          <div className="w-full max-w-4xl space-y-4">
+            {cases.map((caseItem) => (
+              <Card 
+                key={caseItem.id} 
+                className={`cursor-pointer transition-all hover:shadow-md ${
+                  selectedCase?.id === caseItem.id ? 'ring-2 ring-primary' : ''
+                }`}
+                onClick={() => handleCaseSelect(caseItem)}
+              >
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <CardTitle className="text-lg font-semibold">{caseItem.name}</CardTitle>
+                    <Badge variant="secondary">{caseItem.caseNumber}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{caseItem.address}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </main>
       </div>
