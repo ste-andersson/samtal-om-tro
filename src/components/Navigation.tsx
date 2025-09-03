@@ -17,25 +17,44 @@ export const Navigation = () => {
 
   const NavigationItems = ({ mobile = false }) => (
     <>
-      {navigationItems.map((item) => (
-        <NavLink
-          key={item.path}
-          to={item.path}
-          onClick={() => mobile && setIsOpen(false)}
-          className={({ isActive }) =>
-            `flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              mobile ? 'w-full justify-start' : ''
-            } ${
-              isActive
-                ? 'bg-primary text-primary-foreground'
-                : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-            }`
-          }
-        >
-          <item.icon className="w-4 h-4 flex-shrink-0" />
-          <span>{item.title}</span>
-        </NavLink>
-      ))}
+      {navigationItems.map((item) => {
+        const isCasesPage = item.path === '/cases';
+        const isDisabled = !selectedCase && !isCasesPage;
+        
+        if (isDisabled) {
+          return (
+            <div
+              key={item.path}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium cursor-not-allowed opacity-50 ${
+                mobile ? 'w-full justify-start' : ''
+              } text-muted-foreground`}
+            >
+              <item.icon className="w-4 h-4 flex-shrink-0" />
+              <span>{item.title}</span>
+            </div>
+          );
+        }
+
+        return (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            onClick={() => mobile && setIsOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                mobile ? 'w-full justify-start' : ''
+              } ${
+                isActive
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+              }`
+            }
+          >
+            <item.icon className="w-4 h-4 flex-shrink-0" />
+            <span>{item.title}</span>
+          </NavLink>
+        );
+      })}
     </>
   );
 
