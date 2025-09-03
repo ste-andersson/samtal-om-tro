@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { DataCollection } from "@/components/DataCollectionDisplay";
+import { useCase } from "@/contexts/CaseContext";
 
 type Message = {
   role: string;
@@ -12,6 +13,7 @@ type Message = {
 
 export const useElevenLabs = () => {
   const { toast } = useToast();
+  const { selectedCase } = useCase();
   const [isStarted, setIsStarted] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [dataCollection, setDataCollection] = useState<DataCollection | null>(null);
@@ -67,6 +69,12 @@ export const useElevenLabs = () => {
         title: "Transcription Saved",
         description: "Conversation transcription has been saved to database",
       });
+
+      // Trigger defect analysis after successful transcription save
+      if (selectedCase?.id) {
+        console.log("Starting defect analysis after transcription save");
+        analyzeDefects(transcriptText, id);
+      }
     } catch (error) {
       console.error("Exception saving transcription:", error);
       toast({
@@ -159,6 +167,92 @@ export const useElevenLabs = () => {
         description: "An unexpected error occurred while saving data",
       });
       return false;
+    }
+  };
+
+  const analyzeDefects = async (transcript: string, conversationId: string) => {
+    if (!selectedCase?.id) {
+      console.log("No selected case for defect analysis");
+      return;
+    }
+
+    try {
+      console.log("Starting defect analysis for case:", selectedCase.id);
+      
+      // Fetch existing defects for the case
+      const { data: defects, error: fetchError } = await supabase
+        .from('case_defects')
+        .select('defect_number, description')
+        .eq('case_id', selectedCase.id)
+        .order('defect_number', { ascending: true });
+
+      if (fetchError) {
+        console.error("Error fetching defects:", fetchError);
+        return;
+      }
+
+      if (!defects || defects.length === 0) {
+        console.log("No defects found for analysis");
+        return;
+      }
+
+      console.log("Analyzing", defects.length, "defects");
+
+      // Call the analyze-defects edge function
+      const { data: analysisResult, error: analysisError } = await supabase.functions.invoke('analyze-defects', {
+        body: {
+          transcript,
+          case_id: selectedCase.id,
+          defects
+        }
+      });
+
+      if (analysisError) {
+        console.error("Error analyzing defects:", analysisError);
+        toast({
+          variant: "destructive",
+          title: "Analys fel",
+          description: "Kunde inte analysera brister med AI",
+        });
+        return;
+      }
+
+      if (!analysisResult?.defects || !Array.isArray(analysisResult.defects)) {
+        console.error("Invalid analysis result:", analysisResult);
+        return;
+      }
+
+      // Update defects with the analyzed data
+      for (const defect of analysisResult.defects) {
+        const { error: updateError } = await supabase
+          .from('case_defects')
+          .update({
+            brist: defect.brist,
+            atgard: defect.atgard,
+            motivering: defect.motivering
+          })
+          .eq('case_id', defect.case_id)
+          .eq('defect_number', defect.defect_number);
+
+        if (updateError) {
+          console.error("Error updating defect:", defect.defect_number, updateError);
+        } else {
+          console.log("Updated defect", defect.defect_number, "successfully");
+        }
+      }
+
+      toast({
+        title: "Brister analyserade",
+        description: `${analysisResult.defects.length} brister har analyserats och uppdaterats med AI`,
+      });
+
+    } catch (error) {
+      console.error("Exception in analyzeDefects:", error);
+      toast({
+        variant: "destructive",
+        title: "Analys fel",
+        description: "Ett oväntat fel inträffade vid bristanalys",
+      });
     }
   };
 
