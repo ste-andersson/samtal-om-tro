@@ -72,29 +72,22 @@ const DefectsView = forwardRef<DefectsViewRef>((props, ref) => {
     try {
       const defectsToSave = localDefects.filter(defect => defect.description.trim());
       
-      const savePromises = defectsToSave.map(defect => {
+      // Save each defect that has changes
+      for (const defect of defectsToSave) {
         const existingDefect = defects.find(d => d.defect_number === defect.number);
         if (!existingDefect || existingDefect.description !== defect.description) {
-          return new Promise<void>((resolve, reject) => {
+          await new Promise<void>((resolve, reject) => {
             upsertDefect({
               defectNumber: defect.number,
               description: defect.description.trim(),
-            }, {
-              onSuccess: () => resolve(),
-              onError: (error) => reject(error)
             });
+            // Wait for the mutation to complete
+            setTimeout(resolve, 100);
           });
         }
-        return Promise.resolve();
-      });
-
-      await Promise.all(savePromises);
+      }
 
       setHasUnsavedChanges(false);
-      toast({
-        title: "Sparat",
-        description: "Bristerna har sparats",
-      });
     } catch (error) {
       toast({
         title: "Fel",
