@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      cases: {
+        Row: {
+          address: string
+          case_number: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          case_number: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          case_number?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversation_data: {
         Row: {
           closed: string | null

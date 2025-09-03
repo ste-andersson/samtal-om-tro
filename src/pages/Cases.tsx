@@ -1,11 +1,13 @@
 import { Navigation } from '@/components/Navigation';
-import { cases, Case } from '@/types/case';
+import { Case } from '@/types/case';
 import { useCase } from '@/contexts/CaseContext';
+import { useCases } from '@/hooks/use-cases';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 const Cases = () => {
   const { selectedCase, setSelectedCase } = useCase();
+  const { data: cases = [], isLoading, error } = useCases();
 
   const handleCaseSelect = (caseItem: Case) => {
     setSelectedCase(caseItem);
@@ -13,6 +15,32 @@ const Cases = () => {
 
   console.log('Cases component rendered, cases count:', cases.length);
   console.log('Cases data:', cases);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-6 py-12">
+          <div className="flex justify-center">
+            <p className="text-muted-foreground">Laddar ärenden...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-6 py-12">
+          <div className="flex justify-center">
+            <p className="text-destructive">Fel vid laddning av ärenden: {error.message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -46,7 +74,7 @@ const Cases = () => {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg font-semibold text-foreground">{caseItem.name}</CardTitle>
-                      <Badge variant="secondary">{caseItem.caseNumber}</Badge>
+                      <Badge variant="secondary">{caseItem.case_number}</Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
