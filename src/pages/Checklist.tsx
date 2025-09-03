@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Navigation } from '@/components/Navigation';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -14,14 +14,23 @@ const Checklist = () => {
   const checklistRef = useRef<ChecklistViewRef>(null);
   const defectsRef = useRef<DefectsViewRef>(null);
   const { toast } = useToast();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const hasUnsavedChanges = 
-    (checklistRef.current?.hasUnsavedChanges || false) ||
-    (defectsRef.current?.hasUnsavedChanges || false);
+  // Update unsaved changes state when child components change
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const checklistHasChanges = checklistRef.current?.hasUnsavedChanges || false;
+      const defectsHasChanges = defectsRef.current?.hasUnsavedChanges || false;
+      const checklistIsSaving = checklistRef.current?.isSaving || false;
+      const defectsIsSaving = defectsRef.current?.isSaving || false;
 
-  const isSaving = 
-    (checklistRef.current?.isSaving || false) ||
-    (defectsRef.current?.isSaving || false);
+      setHasUnsavedChanges(checklistHasChanges || defectsHasChanges);
+      setIsSaving(checklistIsSaving || defectsIsSaving);
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSaveAll = async () => {
     try {
