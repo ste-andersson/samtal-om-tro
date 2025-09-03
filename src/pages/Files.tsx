@@ -42,7 +42,7 @@ const Files = () => {
         
         <main className="bg-gray-100 py-8">
           <div className="max-w-5xl mx-auto px-6">
-            <div className="bg-white shadow-2xl shadow-black/10 overflow-hidden">
+            <div className="bg-white shadow-2xl shadow-black/10 overflow-hidden document-wrapper">
               <DocumentView 
                 selectedCase={selectedCase}
                 checklistResponses={responses}

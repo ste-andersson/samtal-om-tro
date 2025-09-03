@@ -7,23 +7,31 @@
   font-size: 12pt;
   line-height: 1.15;
   color: black;
-  transform-origin: top center;
 }
 
-/* Scale down on tablets */
+/* Responsive adjustments */
 @media (max-width: 1024px) and (min-width: 641px) {
+  /* iPad: scale down and adjust container */
   .documentContainer {
-    transform: scale(0.8);
-    margin: -10% auto;
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+  
+  .document-wrapper {
+    padding: 2rem 1rem;
   }
 }
 
-/* Scale down more on mobile phones */
 @media (max-width: 640px) {
+  /* Mobile: scale down more and adjust container */
   .documentContainer {
-    transform: scale(0.6);
-    margin: -20% auto;
+    transform: scale(0.7);
+    transform-origin: top center;
     font-size: 11pt;
+  }
+  
+  .document-wrapper {
+    padding: 1rem 0.5rem;
   }
 }
 
@@ -242,7 +250,28 @@
   margin: 2px 0;
 }
 
-/* Print styles */
+/* Responsive main container adjustments */
+@media (max-width: 1024px) and (min-width: 641px) {
+  /* iPad adjustments */
+  .bg-gray-100 .max-w-5xl {
+    padding: 1rem;
+  }
+  
+  .bg-gray-100 {
+    padding: 2rem 0;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Mobile adjustments */
+  .bg-gray-100 .max-w-5xl {
+    padding: 0.5rem;
+  }
+  
+  .bg-gray-100 {
+    padding: 1rem 0;
+  }
+}
 @media print {
   .documentContainer {
     width: auto;
