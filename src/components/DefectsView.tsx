@@ -27,6 +27,7 @@ const DefectsView = forwardRef<DefectsViewRef>((props, ref) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [deletingDefects, setDeletingDefects] = useState<Set<number>>(new Set());
   const debouncedLocalDefects = useDebounce(localDefects, 1000);
   const { toast } = useToast();
 
@@ -52,13 +53,17 @@ const DefectsView = forwardRef<DefectsViewRef>((props, ref) => {
     setIsInitialized(false);
     setLocalDefects([]);
     setHasUnsavedChanges(false);
+    setDeletingDefects(new Set());
   }, [selectedCase?.id]);
 
-  // Auto-save when defects change
+  // Auto-save when defects change (but not for deleted ones)
   useEffect(() => {
-    if (!selectedCase) return;
+    if (!selectedCase || !isInitialized) return;
 
     debouncedLocalDefects.forEach(defect => {
+      // Skip if this defect is being deleted
+      if (deletingDefects.has(defect.number)) return;
+      
       if (defect.description.trim()) {
         const existingDefect = defects.find(d => d.defect_number === defect.number);
         if (!existingDefect || existingDefect.description !== defect.description) {
@@ -69,7 +74,7 @@ const DefectsView = forwardRef<DefectsViewRef>((props, ref) => {
         }
       }
     });
-  }, [debouncedLocalDefects, selectedCase, defects, upsertDefect]);
+  }, [debouncedLocalDefects, selectedCase, defects, upsertDefect, isInitialized, deletingDefects]);
 
   const handleDefectChange = (number: number, description: string) => {
     setLocalDefects(prev => 
@@ -135,6 +140,10 @@ const DefectsView = forwardRef<DefectsViewRef>((props, ref) => {
   };
 
   const removeDefect = (number: number) => {
+    // Mark as being deleted to prevent auto-save
+    setDeletingDefects(prev => new Set([...prev, number]));
+    
+    // Remove from local state
     setLocalDefects(prev => prev.filter(defect => defect.number !== number));
     
     // Delete from database if it exists
@@ -142,6 +151,15 @@ const DefectsView = forwardRef<DefectsViewRef>((props, ref) => {
     if (existingDefect) {
       deleteDefect(number);
     }
+    
+    // Clean up deletion tracking after a delay
+    setTimeout(() => {
+      setDeletingDefects(prev => {
+        const next = new Set(prev);
+        next.delete(number);
+        return next;
+      });
+    }, 2000);
   };
 
   if (!selectedCase) {
