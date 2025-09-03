@@ -1,121 +1,42 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 180 42% 96%; /* #dbeded */
-    --foreground: 181 19% 25%; /* #334c4d */
-
+    --background: 0 0% 99%;
+    --foreground: 247 20% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 181 19% 25%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 181 19% 25%;
-
-    --primary: 166 99% 45%; /* #01e5b0 */
-    --primary-foreground: 181 19% 25%;
-
-    --secondary: 180 42% 96%; /* #dbeded */
-    --secondary-foreground: 181 19% 25%;
-
-    --muted: 180 30% 90%;
-    --muted-foreground: 181 19% 40%;
-
-    --accent: 166 99% 45%; /* #01e5b0 */
-    --accent-foreground: 181 19% 25%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 180 30% 85%;
-    --input: 180 30% 85%;
-    --ring: 166 99% 45%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 181 19% 25%; /* #334c4d */
-    --sidebar-foreground: 180 42% 96%; /* #dbeded */
-    --sidebar-primary: 166 99% 45%; /* #01e5b0 */
-    --sidebar-primary-foreground: 181 19% 25%;
-    --sidebar-accent: 166 99% 45%; /* #01e5b0 */
-    --sidebar-accent-foreground: 181 19% 25%;
-    --sidebar-border: 166 99% 45%; /* #01e5b0 */
-    --sidebar-ring: 166 99% 45%; /* #01e5b0 */
+    --card-foreground: 247 20% 15%;
+    --primary: 210 76% 19.6%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 196.9 39% 51.8%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 50 100% 70%;
+    --accent-foreground: 247 20% 15%;
+    --destructive: 9 58% 64%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --recording: 9 58% 64%;
+    --recording-foreground: 0 0% 100%;
+    --success: 134 61% 41%;
+    --success-foreground: 0 0% 100%;
+    --warning: 50 100% 70%;
+    --warning-foreground: 247 20% 15%;
+    --radius: 0.75rem;
   }
-
-  .dark {
-    --background: 181 19% 25%; /* #334c4d */
-    --foreground: 180 42% 96%; /* #dbeded */
-
-    --card: 181 19% 20%;
-    --card-foreground: 180 42% 96%;
-
-    --popover: 181 19% 20%;
-    --popover-foreground: 180 42% 96%;
-
-    --primary: 166 99% 45%; /* #01e5b0 */
-    --primary-foreground: 181 19% 25%;
-
-    --secondary: 181 19% 30%;
-    --secondary-foreground: 180 42% 96%;
-
-    --muted: 181 19% 30%;
-    --muted-foreground: 180 42% 80%;
-
-    --accent: 166 99% 45%; /* #01e5b0 */
-    --accent-foreground: 181 19% 25%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 180 42% 96%;
-
-    --border: 181 19% 35%;
-    --input: 181 19% 35%;
-    --ring: 166 99% 45%;
-    
-    --sidebar-background: 181 19% 25%; /* #334c4d darker */
-    --sidebar-foreground: 180 42% 96%; /* #dbeded */
-    --sidebar-primary: 166 99% 45%; /* #01e5b0 */
-    --sidebar-primary-foreground: 181 19% 25%;
-    --sidebar-accent: 166 99% 45%; /* #01e5b0 */
-    --sidebar-accent-foreground: 181 19% 25%;
-    --sidebar-border: 166 99% 45%; /* #01e5b0 */
-    --sidebar-ring: 166 99% 45%; /* #01e5b0 */
-  }
-}
-
-@layer base {
+  
   * {
     @apply border-border;
   }
-
+  
   body {
-    @apply bg-background text-foreground font-maison;
+    @apply bg-background text-foreground font-opensans;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-maison;
+    @apply font-poppins font-extrabold;
   }
-  
-  button, input, select, textarea {
-    @apply font-maison;
-  }
-}
-
-/* Add font imports */
-@font-face {
-  font-family: 'MaisonMono';
-  src: url('/fonts/MaisonMono-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'MaisonMono';
-  src: url('/fonts/MaisonMono-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
 }

@@ -1,17 +1,38 @@
-
-import ElevenLabsChat from "@/components/ElevenLabsChat";
+import { useState, useEffect } from 'react';
+import { AudioRecorder } from '@/components/AudioRecorder';
+import { ConversationDisplay } from '@/components/ConversationDisplay';
+import { ConnectionStatus } from '@/components/ConnectionStatus';
 
 const Index = () => {
+  const [messages, setMessages] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-brand-light p-4">
-      <div className="text-center mb-8 max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold mb-4 text-brand-dark font-maison">Röstassistent</h1>
-        <p className="text-xl text-brand-dark font-maison">
-          Klicka på knappen nedan för att starta en konversation med vår AI-röstassistent. Din konversation kommer att transkriberas i realtid.
-        </p>
-      </div>
-      <div className="w-full max-w-2xl mx-auto">
-        <ElevenLabsChat />
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-6 py-12">
+        {/* Header med exakt denna titel */}
+        <header className="text-center mb-16">
+          <h1 className="text-5xl md:text-6xl font-poppins font-extrabold mb-6 text-primary">
+            Tillsyns-assistenten
+          </h1>
+        </header>
+
+        {/* Main Content - exakt denna layout */}
+        <main className="space-y-12">
+          {/* Controls Section - ConnectionStatus TILL VÄNSTER, AudioRecorder TILL HÖGER */}
+          <div className="flex justify-center items-center gap-8">
+            <ConnectionStatus />
+            <AudioRecorder />
+          </div>
+
+          {/* Conversation Display - centrerat under */}
+          <div className="flex justify-center">
+            <ConversationDisplay 
+              messages={messages} 
+              isProcessing={isProcessing} 
+            />
+          </div>
+        </main>
       </div>
     </div>
   );
