@@ -11,6 +11,9 @@ const Cases = () => {
     setSelectedCase(caseItem);
   };
 
+  console.log('Cases component rendered, cases count:', cases.length);
+  console.log('Cases data:', cases);
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -26,25 +29,32 @@ const Cases = () => {
         
         <main className="flex justify-center">
           <div className="w-full max-w-4xl space-y-4">
-            {cases.map((caseItem) => (
-              <Card 
-                key={caseItem.id} 
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  selectedCase?.id === caseItem.id ? 'ring-2 ring-primary' : ''
-                }`}
-                onClick={() => handleCaseSelect(caseItem)}
-              >
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg font-semibold">{caseItem.name}</CardTitle>
-                    <Badge variant="secondary">{caseItem.caseNumber}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{caseItem.address}</p>
-                </CardContent>
-              </Card>
-            ))}
+            <p className="text-sm text-muted-foreground mb-4">
+              Visar {cases.length} ärenden
+            </p>
+            {cases.length === 0 ? (
+              <p className="text-center text-muted-foreground">Inga ärenden hittades</p>
+            ) : (
+              cases.map((caseItem) => (
+                <Card 
+                  key={caseItem.id} 
+                  className={`cursor-pointer transition-all hover:shadow-md border ${
+                    selectedCase?.id === caseItem.id ? 'ring-2 ring-primary bg-primary/5' : 'bg-card'
+                  }`}
+                  onClick={() => handleCaseSelect(caseItem)}
+                >
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg font-semibold text-foreground">{caseItem.name}</CardTitle>
+                      <Badge variant="secondary">{caseItem.caseNumber}</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">{caseItem.address}</p>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </main>
       </div>
