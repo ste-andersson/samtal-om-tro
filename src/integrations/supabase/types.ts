@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      case_defects: {
+        Row: {
+          case_id: string
+          created_at: string
+          defect_number: number
+          description: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          defect_number: number
+          description: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          defect_number?: number
+          description?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_defects_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cases: {
         Row: {
           address: string
@@ -40,6 +75,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      checklist_responses: {
+        Row: {
+          answer: string | null
+          case_id: string
+          checklist_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          answer?: string | null
+          case_id: string
+          checklist_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string | null
+          case_id?: string
+          checklist_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_responses_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversation_data: {
         Row: {
