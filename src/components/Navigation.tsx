@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { FileText, CheckSquare, MessageCircle, Menu } from 'lucide-react';
+import { FileText, CheckSquare, MessageCircle, Menu, FolderOpen } from 'lucide-react';
 import { useCase } from '@/contexts/CaseContext';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
@@ -9,7 +9,7 @@ export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   
   const navigationItems = [
-    { title: 'Ärenden', path: '/cases', icon: FileText },
+    { title: 'Ärenden', path: '/cases', icon: FolderOpen },
     { title: 'Checklista/brister', path: '/checklist', icon: CheckSquare },
     { title: 'Tillsynsassistenten', path: '/assistant', icon: MessageCircle },
     { title: 'Utkast', path: '/files', icon: FileText },
