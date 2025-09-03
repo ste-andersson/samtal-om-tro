@@ -22,6 +22,9 @@ export interface CaseDefect {
   case_id: string;
   defect_number: number;
   description: string;
+  brist: string | null;
+  atgard: string | null;
+  motivering: string | null;
   created_at: string;
   updated_at: string;
 }

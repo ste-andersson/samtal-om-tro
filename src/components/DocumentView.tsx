@@ -77,6 +77,60 @@ const DocumentView: React.FC<DocumentViewProps> = ({
           </p>
         </div>
 
+        {/* Defects Sections */}
+        {defects.length > 0 && (
+          <div className={styles.defectsMainSection}>
+            {/* Brister Section */}
+            <div className={styles.defectsSection}>
+              <h3 className={styles.sectionTitle}>FÖLJANDE BRISTER HAR UPPMÄRKSAMMATS AV RSG</h3>
+              <div className={styles.defectsList}>
+                {defects
+                  .sort((a, b) => a.defect_number - b.defect_number)
+                  .map((defect) => (
+                    <div key={`brist-${defect.id}`} className={styles.defectItem}>
+                      <span className={styles.defectNumber}>{defect.defect_number}.</span>
+                      <span className={styles.defectDescription}>
+                        {defect.brist || defect.description}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Åtgärder Section */}
+            <div className={styles.defectsSection}>
+              <h3 className={styles.sectionTitle}>ÅTGÄRDER SOM RSG ÖVERVÄGER ATT BESLUTA OM</h3>
+              <div className={styles.defectsList}>
+                {defects
+                  .sort((a, b) => a.defect_number - b.defect_number)
+                  .filter(defect => defect.atgard)
+                  .map((defect) => (
+                    <div key={`atgard-${defect.id}`} className={styles.defectItem}>
+                      <span className={styles.defectNumber}>{defect.defect_number}.</span>
+                      <span className={styles.defectDescription}>{defect.atgard}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Motivering Section */}
+            <div className={styles.defectsSection}>
+              <h3 className={styles.sectionTitle}>MOTIVERING AV ÅTGÄRDER</h3>
+              <div className={styles.defectsList}>
+                {defects
+                  .sort((a, b) => a.defect_number - b.defect_number)
+                  .filter(defect => defect.motivering)
+                  .map((defect) => (
+                    <div key={`motivering-${defect.id}`} className={styles.defectItem}>
+                      <span className={styles.defectNumber}>{defect.defect_number}.</span>
+                      <span className={styles.defectDescription}>{defect.motivering}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Checklist Sections */}
         <div className={styles.checklistSections}>
           <h3 className={styles.sectionTitle}>KONTROLLPUNKTER</h3>
@@ -116,26 +170,6 @@ const DocumentView: React.FC<DocumentViewProps> = ({
               })}
             </div>
           ))}
-        </div>
-
-        {/* Defects Section */}
-        <div className={styles.defectsSection}>
-          <h3 className={styles.sectionTitle}>BRISTER SOM UPPMÄRKSAMMATS</h3>
-          
-          {defects.length > 0 ? (
-            <div className={styles.defectsList}>
-              {defects
-                .sort((a, b) => a.defect_number - b.defect_number)
-                .map((defect) => (
-                  <div key={defect.id} className={styles.defectItem}>
-                    <span className={styles.defectNumber}>{defect.defect_number}.</span>
-                    <span className={styles.defectDescription}>{defect.description}</span>
-                  </div>
-                ))}
-            </div>
-          ) : (
-            <p className={styles.noDefects}>Inga brister uppmärksammades vid kontrollen.</p>
-          )}
         </div>
 
         {/* Footer */}
