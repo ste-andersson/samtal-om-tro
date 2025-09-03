@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversation_data: {
+        Row: {
+          closed: string | null
+          conversation_id: string
+          created_at: string
+          hours: string | null
+          id: string
+          project: string | null
+          sales_opportunities: string | null
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          closed?: string | null
+          conversation_id: string
+          created_at?: string
+          hours?: string | null
+          id?: string
+          project?: string | null
+          sales_opportunities?: string | null
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          closed?: string | null
+          conversation_id?: string
+          created_at?: string
+          hours?: string | null
+          id?: string
+          project?: string | null
+          sales_opportunities?: string | null
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      conversation_transcripts: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          transcript: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          transcript: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          transcript?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          id: string
+          kund: string
+          uppdragsnr: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kund: string
+          uppdragsnr: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kund?: string
+          uppdragsnr?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
