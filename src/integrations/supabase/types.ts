@@ -16,27 +16,36 @@ export type Database = {
     Tables: {
       case_defects: {
         Row: {
+          atgard: string | null
+          brist: string | null
           case_id: string
           created_at: string
           defect_number: number
           description: string
           id: string
+          motivering: string | null
           updated_at: string
         }
         Insert: {
+          atgard?: string | null
+          brist?: string | null
           case_id: string
           created_at?: string
           defect_number: number
           description: string
           id?: string
+          motivering?: string | null
           updated_at?: string
         }
         Update: {
+          atgard?: string | null
+          brist?: string | null
           case_id?: string
           created_at?: string
           defect_number?: number
           description?: string
           id?: string
+          motivering?: string | null
           updated_at?: string
         }
         Relationships: [
