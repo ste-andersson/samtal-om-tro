@@ -26,22 +26,33 @@ const DefectsView = forwardRef<DefectsViewRef>((props, ref) => {
   const [localDefects, setLocalDefects] = useState<DefectInput[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const debouncedLocalDefects = useDebounce(localDefects, 1000);
   const { toast } = useToast();
 
-  // Initialize local defects from database
+  // Initialize local defects from database only once
   useEffect(() => {
-    if (defects.length > 0) {
-      const defectInputs = defects.map(defect => ({
-        number: defect.defect_number,
-        description: defect.description,
-      }));
-      setLocalDefects(defectInputs);
-    } else if (localDefects.length === 0) {
-      // Start with one empty defect if none exist
-      setLocalDefects([{ number: 1, description: '' }]);
+    if (!isInitialized && selectedCase) {
+      if (defects.length > 0) {
+        const defectInputs = defects.map(defect => ({
+          number: defect.defect_number,
+          description: defect.description,
+        }));
+        setLocalDefects(defectInputs);
+      } else {
+        // Start with one empty defect if none exist
+        setLocalDefects([{ number: 1, description: '' }]);
+      }
+      setIsInitialized(true);
     }
-  }, [defects]);
+  }, [defects, selectedCase, isInitialized]);
+
+  // Reset when case changes
+  useEffect(() => {
+    setIsInitialized(false);
+    setLocalDefects([]);
+    setHasUnsavedChanges(false);
+  }, [selectedCase?.id]);
 
   // Auto-save when defects change
   useEffect(() => {
