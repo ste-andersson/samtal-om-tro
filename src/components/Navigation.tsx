@@ -85,15 +85,15 @@ export const Navigation = () => {
           
           {/* Selected Case Display */}
           {selectedCase && (
-            <div className="flex items-center bg-accent/20 border border-accent/30 rounded-lg px-3 py-2 min-w-0 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl ml-auto">
+            <div className="flex items-center bg-muted border border-border rounded-lg px-3 py-2 min-w-0 max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl ml-auto">
               <div className="flex flex-col min-w-0 w-full">
                 {/* Desktop layout */}
                 <div className="hidden lg:block">
-                  <span className="text-xs font-medium text-accent-foreground/80 mb-0.5">
+                  <span className="text-xs font-medium text-muted-foreground mb-0.5">
                     Valt ärende: {selectedCase.case_number}
                   </span>
                   <div className="min-w-0">
-                    <span className="text-sm font-semibold text-accent-foreground truncate block">
+                    <span className="text-sm font-semibold text-foreground truncate block">
                       {selectedCase.name}
                     </span>
                   </div>
@@ -102,10 +102,10 @@ export const Navigation = () => {
                 {/* Tablet layout - compact */}
                 <div className="hidden sm:block lg:hidden">
                   <div className="flex items-center space-x-2 min-w-0">
-                    <span className="text-xs text-accent-foreground/80 whitespace-nowrap font-medium">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap font-medium">
                       {selectedCase.case_number}
                     </span>
-                    <span className="text-sm font-semibold text-accent-foreground truncate flex-1">
+                    <span className="text-sm font-semibold text-foreground truncate flex-1">
                       {selectedCase.name}
                     </span>
                   </div>
@@ -113,10 +113,10 @@ export const Navigation = () => {
                 
                 {/* Mobile layout */}
                 <div className="sm:hidden flex items-center space-x-2 min-w-0">
-                  <span className="text-sm font-semibold text-accent-foreground truncate flex-1">
+                  <span className="text-sm font-semibold text-foreground truncate flex-1">
                     {selectedCase.name}
                   </span>
-                  <span className="text-xs text-accent-foreground/80 whitespace-nowrap font-medium">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap font-medium">
                     {selectedCase.case_number}
                   </span>
                 </div>
