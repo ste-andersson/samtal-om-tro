@@ -28,6 +28,11 @@ interface CaseDefect {
   motivering?: string;
   created_at: string;
   updated_at: string;
+  case?: {
+    name: string;
+    case_number: string;
+    address: string;
+  };
 }
 
 const AdminDefects = () => {
@@ -40,7 +45,14 @@ const AdminDefects = () => {
     queryFn: async (): Promise<CaseDefect[]> => {
       const { data, error } = await supabase
         .from('case_defects')
-        .select('*')
+        .select(`
+          *,
+          case:cases!inner(
+            name,
+            case_number,
+            address
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -143,9 +155,21 @@ const AdminDefects = () => {
             <Card key={defect.id} className="relative">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">
-                    Defekt #{defect.defect_number}
-                  </CardTitle>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg">
+                      Defekt #{defect.defect_number}
+                    </CardTitle>
+                    {defect.case && (
+                      <div className="mt-1">
+                        <p className="text-sm font-medium text-primary">
+                          {defect.case.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {defect.case.case_number} • {defect.case.address}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
                       {defect.case_id.slice(0, 8)}...
@@ -168,7 +192,8 @@ const AdminDefects = () => {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Radera defekt?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Detta kommer permanent radera defekt #{defect.defect_number} från databasen. 
+                            Detta kommer permanent radera defekt #{defect.defect_number} 
+                            {defect.case && ` från ${defect.case.name}`} från databasen. 
                             Denna åtgärd kan inte ångras.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
