@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AudioRecorder } from '@/components/AudioRecorder';
 import { ConversationDisplay } from '@/components/ConversationDisplay';
@@ -8,6 +8,8 @@ import MicrophonePermission from "@/components/MicrophonePermission";
 
 const Index = () => {
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const processingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   
   const {
@@ -24,6 +26,53 @@ const Index = () => {
   } = useElevenLabs();
 
   const { status, isSpeaking } = conversation;
+
+  // Hantera AI-processar timing
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    const lastMessage = messages[messages.length - 1];
+    
+    // Om det senaste meddelandet är från användaren
+    if (lastMessage.role === 'user') {
+      // Rensa eventuell befintlig timeout
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+      }
+      
+      // Starta timeout för att visa "AI-processar" efter 100ms
+      processingTimeoutRef.current = setTimeout(() => {
+        setIsProcessing(true);
+      }, 100);
+    }
+    
+    // Om det senaste meddelandet är från AI, dölj "AI-processar"
+    if (lastMessage.role === 'assistant') {
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+        processingTimeoutRef.current = null;
+      }
+      setIsProcessing(false);
+    }
+
+    // Cleanup function
+    return () => {
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+      }
+    };
+  }, [messages]);
+
+  // Rensa processing när konversation startar om
+  useEffect(() => {
+    if (!isStarted) {
+      setIsProcessing(false);
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+        processingTimeoutRef.current = null;
+      }
+    }
+  }, [isStarted]);
 
   // Check microphone permission
   useEffect(() => {
@@ -94,7 +143,7 @@ const Index = () => {
             <div className="flex justify-center">
               <ConversationDisplay 
                 messages={messages} 
-                isProcessing={isSpeaking}
+                isProcessing={isProcessing}
               />
             </div>
           </main>
