@@ -42,14 +42,19 @@ export const Navigation = () => {
   return (
     <nav className="bg-card border-b border-border">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center h-16 gap-4">
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden lg:flex items-center space-x-4 flex-1">
+            <NavigationItems />
+          </div>
+          
+          {/* Tablet Navigation */}
+          <div className="hidden md:flex lg:hidden items-center space-x-2 flex-1">
             <NavigationItems />
           </div>
           
           {/* Mobile Navigation */}
-          <div className="md:hidden">
+          <div className="md:hidden flex-1">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <button className="p-2 rounded-lg hover:bg-accent">
@@ -66,17 +71,17 @@ export const Navigation = () => {
           
           {/* Selected Case Display */}
           {selectedCase && (
-            <div className="flex items-center space-x-2 px-3 py-2 bg-secondary rounded-lg max-w-xs md:max-w-md">
-              <div className="flex flex-col min-w-0">
-                <span className="text-xs font-medium text-secondary-foreground hidden sm:block">
-                  Valt ärende:
+            <div className="flex items-center bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 min-w-0 max-w-xs md:max-w-sm lg:max-w-md ml-auto">
+              <div className="flex flex-col min-w-0 w-full">
+                <span className="text-xs font-medium text-primary/80 hidden sm:block mb-0.5">
+                  Valt ärende
                 </span>
                 <div className="flex items-center space-x-2 min-w-0">
-                  <span className="text-sm font-semibold text-primary truncate">
+                  <span className="text-sm font-semibold text-primary truncate flex-1">
                     {selectedCase.name}
                   </span>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    ({selectedCase.caseNumber})
+                  <span className="text-xs text-primary/70 whitespace-nowrap font-medium">
+                    {selectedCase.caseNumber}
                   </span>
                 </div>
               </div>
