@@ -16,6 +16,7 @@ const Checklist = () => {
   const { toast } = useToast();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const scrollPositions = useRef<Record<string, number>>({ checklist: 0, defects: 0 });
 
   // Update unsaved changes state when child components change
   useEffect(() => {
@@ -31,6 +32,33 @@ const Checklist = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Save scroll position when switching tabs
+  useEffect(() => {
+    const handleScroll = () => {
+      scrollPositions.current[activeTab] = window.scrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeTab]);
+
+  // Restore scroll position when tab changes
+  useEffect(() => {
+    const savedPosition = scrollPositions.current[activeTab];
+    if (savedPosition !== undefined) {
+      // Use setTimeout to ensure the content has rendered
+      setTimeout(() => {
+        window.scrollTo(0, savedPosition);
+      }, 0);
+    }
+  }, [activeTab]);
+
+  const handleTabChange = (newTab: string) => {
+    // Save current scroll position before changing tab
+    scrollPositions.current[activeTab] = window.scrollY;
+    setActiveTab(newTab);
+  };
 
   const handleSaveAll = async () => {
     try {
@@ -84,7 +112,7 @@ const Checklist = () => {
           <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
             <div className="px-4 py-3">
               <div className="flex items-center justify-between gap-4">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 max-w-xs">
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 max-w-xs">
                   <TabsList className="grid w-full grid-cols-2 h-9">
                     <TabsTrigger value="checklist" className="text-xs font-medium px-2 h-full">Checklista</TabsTrigger>
                     <TabsTrigger value="defects" className="text-xs font-medium px-2 h-full">Brister</TabsTrigger>
@@ -117,7 +145,7 @@ const Checklist = () => {
             </div>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
             <TabsContent value="checklist" className="mt-0">
               <ChecklistView ref={checklistRef} />
             </TabsContent>
