@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Agent = {
   id: string;
@@ -22,30 +23,34 @@ interface AgentSelectorProps {
 
 export const AgentSelector = ({ selectedAgent, onAgentChange, disabled }: AgentSelectorProps) => {
   return (
-    <div className="space-y-3">
-      <Label className="text-sm font-medium">Välj tillsynsassistent</Label>
-      <RadioGroup
-        value={selectedAgent}
-        onValueChange={onAgentChange}
-        disabled={disabled}
-        className="grid grid-cols-5 gap-3"
-      >
-        {agents.map((agent) => (
-          <div key={agent.id} className="flex items-center space-x-2">
-            <RadioGroupItem
-              value={agent.id}
-              id={agent.id}
-              className="peer"
-            />
-            <Label
-              htmlFor={agent.id}
-              className="text-sm font-medium cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {agent.name}
-            </Label>
-          </div>
-        ))}
-      </RadioGroup>
-    </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-sm font-medium">Välj tillsynsassistent</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <RadioGroup
+          value={selectedAgent}
+          onValueChange={onAgentChange}
+          disabled={disabled}
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
+        >
+          {agents.map((agent) => (
+            <div key={agent.id} className="flex items-center space-x-2">
+              <RadioGroupItem
+                value={agent.id}
+                id={agent.id}
+                className="peer"
+              />
+              <Label
+                htmlFor={agent.id}
+                className="text-sm font-medium cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {agent.name}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </CardContent>
+    </Card>
   );
 };
