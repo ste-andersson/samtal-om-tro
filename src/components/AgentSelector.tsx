@@ -32,15 +32,15 @@ export const AgentSelector = ({ selectedAgent, onAgentChange, disabled }: AgentS
         <Tabs 
           value={selectedAgent} 
           onValueChange={onAgentChange}
-          className="w-full"
+          className="w-full max-w-2xl mx-auto"
         >
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-5 h-auto p-1 gap-0.5">
             {agents.map((agent) => (
               <TabsTrigger
                 key={agent.id}
                 value={agent.id}
                 disabled={disabled}
-                className="text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="text-xs sm:text-sm font-medium px-1 sm:px-3 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
                 {agent.name}
               </TabsTrigger>
