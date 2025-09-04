@@ -6,9 +6,11 @@ import MicrophonePermission from "./MicrophonePermission";
 import ConversationControls from "./ConversationControls";
 import DataCollectionDisplay from "./DataCollectionDisplay";
 import TranscriptionDisplay from "./TranscriptionDisplay";
+import { AgentSelector } from "./AgentSelector";
 
 export const ElevenLabsChat = () => {
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState("agent_2401k467207hefr83sq8vsfkj5ys");
   const navigate = useNavigate();
   
   const {
@@ -22,7 +24,7 @@ export const ElevenLabsChat = () => {
     startConversation,
     toggleMute,
     conversationId
-  } = useElevenLabs();
+  } = useElevenLabs(selectedAgent);
 
   const { status, isSpeaking } = conversation;
 
@@ -85,6 +87,13 @@ export const ElevenLabsChat = () => {
 
           {/* Always show the TranscriptionDisplay when connected or if there are messages */}
           <TranscriptionDisplay messages={messages} />
+
+          {/* Agent Selector */}
+          <AgentSelector 
+            selectedAgent={selectedAgent}
+            onAgentChange={setSelectedAgent}
+            disabled={isStarted}
+          />
 
           {(isLoadingData || dataCollection) && (
             <DataCollectionDisplay 

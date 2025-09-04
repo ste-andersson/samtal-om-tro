@@ -11,7 +11,7 @@ type Message = {
   content: string;
 };
 
-export const useElevenLabs = () => {
+export const useElevenLabs = (agentId: string = "agent_2401k467207hefr83sq8vsfkj5ys") => {
   const { toast } = useToast();
   const { selectedCase } = useCase();
   const [isStarted, setIsStarted] = useState(false);
@@ -374,7 +374,7 @@ export const useElevenLabs = () => {
       setConversationId(null);
       
       const result = await conversation.startSession({ 
-        agentId: "agent_2401k467207hefr83sq8vsfkj5ys" 
+        agentId: agentId 
       });
       
       console.log("Conversation started with ID:", result);
