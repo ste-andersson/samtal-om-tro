@@ -155,11 +155,13 @@ const Index = () => {
 
             {/* Agent Selector */}
             <div className="flex justify-center">
-              <AgentSelector 
-                selectedAgent={selectedAgent}
-                onAgentChange={setSelectedAgent}
-                disabled={isStarted}
-              />
+              <div className="w-full max-w-2xl">
+                <AgentSelector 
+                  selectedAgent={selectedAgent}
+                  onAgentChange={setSelectedAgent}
+                  disabled={isStarted}
+                />
+              </div>
             </div>
           </main>
         )}
