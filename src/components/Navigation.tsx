@@ -10,7 +10,7 @@ export const Navigation = () => {
   
   const navigationItems = [
     { title: 'Ärenden', path: '/cases', icon: FolderOpen },
-    { title: 'Checklista/brister', path: '/checklist', icon: CheckSquare },
+    { title: 'Bilaga/brister', path: '/checklist', icon: CheckSquare },
     { title: 'Tillsynsassistenten', path: '/assistant', icon: MessageCircle },
     { title: 'Utkast', path: '/files', icon: FileText },
   ];
