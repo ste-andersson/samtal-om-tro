@@ -93,7 +93,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-12">
         <header className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-poppins font-extrabold mb-6 text-primary">
+          <h1 className="text-3xl md:text-4xl font-poppins font-extrabold mb-6 text-primary">
             Dåliga samtal om tro
           </h1>
         </header>
