@@ -24,7 +24,7 @@ export const AgentSelector = ({ selectedAgent, onAgentChange, disabled }: AgentS
   console.log("AgentSelector rendering with:", { selectedAgent, disabled });
   
   return (
-    <Card className="w-full max-w-4xl">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="text-sm font-medium">Välj samtalspartner</CardTitle>
       </CardHeader>
