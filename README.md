@@ -1,69 +1,58 @@
-# Welcome to your Lovable project
+# Samtal om tro
 
-## Project info
+En komisk app för att ha samtal om tro och religion. **Observera att denna app inte är avsedd för teologisk vägledning eller undervisning.**
 
-**URL**: https://lovable.dev/projects/f3980999-fa83-40c9-a33f-67add57ea1c0
+🌐 **Live-version**: [https://samtal-om-tro.lovable.app](https://samtal-om-tro.lovable.app)
 
-## How can I edit this code?
+## Om projektet
 
-There are several ways of editing your application.
+Detta är en humoristisk applikation där användare kan ha samtal med olika samtalspartners om tro och religion. Samtalspartnerna är skapade för komik snarare än att lära ut något. Appen är avsedd för underhållning och humor, inte för seriös teologisk vägledning.
 
-**Use Lovable**
+## Hur fungerar appen?
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f3980999-fa83-40c9-a33f-67add57ea1c0) and start prompting.
+Appen använder röstbaserad konversation där du kan prata med olika samtalspartners om tro och religion. Du väljer en samtalspartner och startar en konversation genom att prata i mikrofonen. Samtalspartnerna svarar med röst via AI-teknologi.
 
-Changes made via Lovable will be committed automatically to this repo.
+### Samtalspartners
 
-**Use your preferred IDE**
+Appen innehåller fem olika samtalspartners:
+- **Ola**
+- **Elin**
+- **Sanna**
+- **Adam**
+- **Mathias**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Varje samtalspartner har sin egen personlighet och stil, alla skapade för komik och underhållning.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Krav
 
-Follow these steps:
+- Mikrofonåtkomst (appen använder röstkonversation)
+- Modern webbläsare med stöd för mikrofon-API
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Teknisk information
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Projektet är skapat i [Lovable](https://lovable.dev/projects/f3980999-fa83-40c9-a33f-67add57ea1c0).
 
-# Step 3: Install the necessary dependencies.
-npm i
+Agenterna och deras promptar är skapade i [ElevenLabs](https://elevenlabs.io/).
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
+### Teknologier
 
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- ElevenLabs (röstkonversation)
 
-## How can I deploy this project?
+## Installation
 
-Simply open [Lovable](https://lovable.dev/projects/f3980999-fa83-40c9-a33f-67add57ea1c0) and click on Share -> Publish.
+För att köra projektet lokalt:
 
-## I want to use a custom domain - is that possible?
+```sh
+# Installera dependencies
+npm install
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+# Starta utvecklingsservern
+npm run dev
+```
+
+Krav: Node.js & npm installerat - [installera med nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
