@@ -1,4 +1,4 @@
-# Samtal om tro
+# Divine Dialogues
 
 En komisk app för att ha samtal om tro och religion. **Observera att denna app inte är avsedd för teologisk vägledning eller undervisning.**
 
